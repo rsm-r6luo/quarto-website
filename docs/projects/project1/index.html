@@ -9,7 +9,7 @@
 <meta name="author" content="Runyu Luo">
 <meta name="dcterms.date" content="2026-04-15">
 
-<title>Analysis of Cars – quarto-website</title>
+<title>A/B Testing a Call to Action – quarto-website</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -24,6 +24,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -73,6 +108,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -127,11 +191,15 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#markdown" id="toc-markdown" class="nav-link active" data-scroll-target="#markdown">```markdown</a></li>
-  <li><a href="#header" id="toc-header" class="nav-link" data-scroll-target="#header">Header</a>
-  <ul class="collapse">
-  <li><a href="#sub-header" id="toc-sub-header" class="nav-link" data-scroll-target="#sub-header">Sub-header</a></li>
-  </ul></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#the-ab-test-as-a-statistical-problem" id="toc-the-ab-test-as-a-statistical-problem" class="nav-link" data-scroll-target="#the-ab-test-as-a-statistical-problem">The A/B Test as a Statistical Problem</a></li>
+  <li><a href="#simulating-data" id="toc-simulating-data" class="nav-link" data-scroll-target="#simulating-data">Simulating Data</a></li>
+  <li><a href="#the-law-of-large-numbers" id="toc-the-law-of-large-numbers" class="nav-link" data-scroll-target="#the-law-of-large-numbers">The Law of Large Numbers</a></li>
+  <li><a href="#bootstrap-standard-errors" id="toc-bootstrap-standard-errors" class="nav-link" data-scroll-target="#bootstrap-standard-errors">Bootstrap Standard Errors</a></li>
+  <li><a href="#the-central-limit-theorem" id="toc-the-central-limit-theorem" class="nav-link" data-scroll-target="#the-central-limit-theorem">The Central Limit Theorem</a></li>
+  <li><a href="#hypothesis-testing" id="toc-hypothesis-testing" class="nav-link" data-scroll-target="#hypothesis-testing">Hypothesis Testing</a></li>
+  <li><a href="#the-t-test-as-a-regression" id="toc-the-t-test-as-a-regression" class="nav-link" data-scroll-target="#the-t-test-as-a-regression">The T-Test as a Regression</a></li>
+  <li><a href="#the-problem-with-peeking" id="toc-the-problem-with-peeking" class="nav-link" data-scroll-target="#the-problem-with-peeking">The Problem with Peeking</a></li>
   </ul>
 </nav>
     </div>
@@ -140,7 +208,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Analysis of Cars</h1>
+<h1 class="title">A/B Testing a Call to Action</h1>
+<p class="subtitle lead">Simulating Key Ideas from Classical Frequentist Statistics</p>
 </div>
 
 
@@ -169,21 +238,428 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>全部删掉。</p>
-<p>换成这个纯文字版本：</p>
-<section id="markdown" class="level2">
-<h2 class="anchored" data-anchor-id="markdown">```markdown</h2>
-<p>title: “Analysis of Cars” author: “Runyu Luo” date: today —</p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>This post uses a website A/B test to introduce several key ideas in classical frequentist statistics. Imagine that I have a website with a landing page where visitors can sign up to receive a newsletter. The page includes a call to action, or CTA, that encourages visitors to complete the sign-up form.</p>
+<p>The practical question is whether the wording of the CTA affects the sign-up rate. In this experiment, CTA A says “Sign up for our newsletter here!” and CTA B says “Stay up to date by signing up!” Visitors are randomly assigned to see one of the two CTAs, and I compare the sign-up rates between the two groups.</p>
+<p>Although this sounds like a simple comparison, the result of an A/B test is affected by random variation. The purpose of this post is to use simulation to show how frequentist tools such as sampling distributions, standard errors, bootstrap estimates, hypothesis tests, and confidence intervals help us reason about whether an observed difference is likely to reflect a real effect.</p>
 </section>
-<section id="header" class="level1">
-<h1>Header</h1>
-<p>This is a sample project post created to test the blog listing page.</p>
-<section id="sub-header" class="level2">
-<h2 class="anchored" data-anchor-id="sub-header">Sub-header</h2>
-<p>This page confirms that my Quarto website can display individual project posts.</p>
+<section id="the-ab-test-as-a-statistical-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-ab-test-as-a-statistical-problem">The A/B Test as a Statistical Problem</h2>
+<p>We can model each visitor’s outcome as a Bernoulli random variable. A visitor either signs up, coded as 1, or does not sign up, coded as 0. For CTA A, let the probability of signing up be (p_A). For CTA B, let the probability of signing up be (p_B).</p>
+<p>The main quantity of interest is the difference in conversion rates:</p>
+<p><span class="math display">\[
+\theta = p_A - p_B
+\]</span></p>
+<p>If (&gt; 0), CTA A improves the sign-up rate compared with CTA B. If (= 0), the two CTAs perform equally well. If (&lt; 0), CTA A performs worse.</p>
+<p>In practice, we do not observe (p_A) and (p_B) directly. We only observe sample conversion rates from a finite number of visitors. This means the observed difference,</p>
+<p><span class="math display">\[
+\hat{\theta} = \hat{p}_A - \hat{p}_B
+\]</span></p>
+<p>is an estimate of the true treatment effect. Frequentist inference helps us understand how much this estimate could vary because of random assignment and sampling noise. It allows us to construct confidence intervals that communicate the uncertainty around our estimate and to perform hypothesis tests to assess whether the observed difference is statistically significant.</p>
+</section>
+<section id="simulating-data" class="level2">
+<h2 class="anchored" data-anchor-id="simulating-data">Simulating Data</h2>
+<p>In a real A/B test, I would not know the true sign-up probabilities for CTA A and CTA B. I would only observe whether each visitor signed up and use those observations to estimate the difference in conversion rates. For this simulation, however, I set the true probabilities myself. This lets me study how well the estimator behaves when I already know the truth.</p>
+<p>I assume that CTA A has a true sign-up probability of (_A = 0.22), while CTA B has a true sign-up probability of (_B = 0.18). Therefore, the true difference is:</p>
+<p>[ = _A - _B = 0.22 - 0.18 = 0.04 ]</p>
+<p>This means that, in the simulated world, CTA A is better than CTA B by 4 percentage points.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_A <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n_B <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pi_A <span class="ot">&lt;-</span> <span class="fl">0.22</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>pi_B <span class="ot">&lt;-</span> <span class="fl">0.18</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>theta_true <span class="ot">&lt;-</span> pi_A <span class="sc">-</span> pi_B</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_A, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> pi_A)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_B, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> pi_B)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>pi_A_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(A)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>pi_B_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(B)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="ot">&lt;-</span> pi_A_hat <span class="sc">-</span> pi_B_hat</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>summary_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">Group =</span> <span class="fu">c</span>(<span class="st">"CTA A"</span>, <span class="st">"CTA B"</span>, <span class="st">"Difference: A - B"</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">True_Value =</span> <span class="fu">c</span>(pi_A, pi_B, theta_true),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sample_Estimate =</span> <span class="fu">c</span>(pi_A_hat, pi_B_hat, theta_hat)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  summary_table,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"True values and sample estimates from the simulated A/B test"</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>True values and sample estimates from the simulated A/B test</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Group</th>
+<th style="text-align: right;">True_Value</th>
+<th style="text-align: right;">Sample_Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">CTA A</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: right;">0.211</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CTA B</td>
+<td style="text-align: right;">0.18</td>
+<td style="text-align: right;">0.172</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Difference: A - B</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.039</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The simulated sample estimates are close to the true values, but they are not exactly equal to them. This difference appears because the data are random. Even when the true sign-up probabilities are fixed, one simulated experiment may produce slightly different observed conversion rates than another. This is why statistical inference is necessary: it helps us understand how much variation to expect when estimating a true effect from sample data.</p>
+</section>
+<section id="the-law-of-large-numbers" class="level2">
+<h2 class="anchored" data-anchor-id="the-law-of-large-numbers">The Law of Large Numbers</h2>
+<p>The Law of Large Numbers says that as the sample size grows, the sample average gets closer to the population average. In this A/B test, each visitor’s sign-up outcome is random, so a small sample can produce a noisy estimate. However, as more visitors are included, the estimated difference between CTA A and CTA B should become more stable.</p>
+<p>In this simulation, the true difference is <code>pi_A - pi_B = 0.22 - 0.18 = 0.04</code>. In other words, CTA A is truly better than CTA B by 4 percentage points in the simulated data-generating process.</p>
+<p>To illustrate the Law of Large Numbers, I calculate the running estimate of the difference in conversion rates as the sample size grows from 1 visitor per group to 1,000 visitors per group.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>running_theta <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_A)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_A) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  running_theta[i] <span class="ot">&lt;-</span> <span class="fu">mean</span>(A[<span class="dv">1</span><span class="sc">:</span>i]) <span class="sc">-</span> <span class="fu">mean</span>(B[<span class="dv">1</span><span class="sc">:</span>i])</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  running_theta,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"l"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Number of visitors per group"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Running estimate of A - B"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Law of Large Numbers in the A/B Test"</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> theta_true, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topright"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Running estimate"</span>, <span class="st">"True difference"</span>),</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">bty =</span> <span class="st">"n"</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>At the beginning of the experiment, the estimate changes a lot because it is based on very few visitors. As the sample size increases, the running estimate becomes less volatile and moves closer to the true difference of <code>0.04</code>. This is why larger A/B tests are more reliable than very small experiments: random noise matters less when the sample is large.</p>
+</section>
+<section id="bootstrap-standard-errors" class="level2">
+<h2 class="anchored" data-anchor-id="bootstrap-standard-errors">Bootstrap Standard Errors</h2>
+<p>The previous section showed that the estimated treatment effect becomes more stable as the sample size grows. However, in a real experiment, I only get one dataset. I do not get to repeatedly run the same A/B test many times just to see how much the estimate changes.</p>
+<p>The bootstrap is a practical way to estimate this uncertainty from the data I already have. The idea is to repeatedly resample from the observed CTA A group and CTA B group, with replacement, and then recalculate the estimated difference each time. The standard deviation of these bootstrap estimates gives a bootstrap standard error.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>n_boot <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>boot_theta <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_boot)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_boot) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  A_boot <span class="ot">&lt;-</span> <span class="fu">sample</span>(A, <span class="at">size =</span> n_A, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  B_boot <span class="ot">&lt;-</span> <span class="fu">sample</span>(B, <span class="at">size =</span> n_B, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  boot_theta[i] <span class="ot">&lt;-</span> <span class="fu">mean</span>(A_boot) <span class="sc">-</span> <span class="fu">mean</span>(B_boot)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>bootstrap_se <span class="ot">&lt;-</span> <span class="fu">sd</span>(boot_theta)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>analytical_se <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  pi_A_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> pi_A_hat) <span class="sc">/</span> n_A <span class="sc">+</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    pi_B_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> pi_B_hat) <span class="sc">/</span> n_B</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>se_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Bootstrap standard error"</span>, <span class="st">"Analytical standard error"</span>),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Standard_Error =</span> <span class="fu">c</span>(bootstrap_se, analytical_se)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  se_table,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Bootstrap and analytical standard errors"</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Bootstrap and analytical standard errors</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: right;">Standard_Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Bootstrap standard error</td>
+<td style="text-align: right;">0.0171</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Analytical standard error</td>
+<td style="text-align: right;">0.0176</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The bootstrap standard error is close to the analytical standard error. This is useful because it shows that the bootstrap can recover a similar measure of uncertainty without relying directly on a formula for the standard error.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The histogram shows the bootstrap distribution of the estimated treatment effect. Most bootstrap estimates are centered around the observed estimate from the original simulated data. The dashed vertical lines show an approximate 95% confidence interval based on the bootstrap standard error. This helps communicate that the observed difference is not a single perfectly certain number, but an estimate with sampling uncertainty.</p>
+</section>
+<section id="the-central-limit-theorem" class="level2">
+<h2 class="anchored" data-anchor-id="the-central-limit-theorem">The Central Limit Theorem</h2>
+<p>The Central Limit Theorem says that, under fairly general conditions, the sampling distribution of a sample mean becomes approximately Normal as the sample size grows. In this A/B test, the estimated treatment effect is the difference between two sample means:</p>
+<p>[ = {X}_A - {X}_B ]</p>
+<p>Even though each individual visitor’s outcome is binary, the distribution of () becomes more bell-shaped when the experiment is repeated many times with a large enough sample.</p>
+<p>To demonstrate this, I simulate 1,000 A/B tests at four different sample sizes: 25, 50, 100, and 500 visitors per group. For each simulated experiment, I calculate the estimated difference in sign-up rates.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>When the sample size is small, the sampling distribution is wide and irregular because each experiment contains limited information. As the sample size increases, the distribution becomes narrower, smoother, and more centered around the true difference of 0.04. This is the Central Limit Theorem in action: even though the original visitor outcomes are 0/1 variables, the estimator behaves more like a Normal random variable when the sample is large.</p>
+</section>
+<section id="hypothesis-testing" class="level2">
+<h2 class="anchored" data-anchor-id="hypothesis-testing">Hypothesis Testing</h2>
+<p>A hypothesis test gives us a formal way to ask whether the observed difference is large enough to be considered evidence of a real difference between the two CTAs.</p>
+<p>In this example, the null hypothesis is that the two CTAs have the same sign-up rate:</p>
+<p>[ H_0: = 0 ]</p>
+<p>The alternative hypothesis is that the two CTAs have different sign-up rates:</p>
+<p>[ H_1: ]</p>
+<p>Since () is approximately Normal in large samples, we can standardize the observed estimate by dividing it by its standard error:</p>
+<p>[ z = ]</p>
+<p>If the null hypothesis were true, the estimated difference should usually be close to zero. A very large positive or negative test statistic would be evidence against the null hypothesis.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>z_stat <span class="ot">&lt;-</span> theta_hat <span class="sc">/</span> analytical_se</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(z_stat)))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>hypothesis_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> <span class="fu">c</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Estimated difference"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Analytical standard error"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"z-statistic"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"p-value"</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">Value =</span> <span class="fu">c</span>(theta_hat, analytical_se, z_stat, p_value)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  hypothesis_table,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Hypothesis test for the difference in sign-up rates"</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Hypothesis test for the difference in sign-up rates</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Estimated difference</td>
+<td style="text-align: right;">0.0390</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Analytical standard error</td>
+<td style="text-align: right;">0.0176</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">z-statistic</td>
+<td style="text-align: right;">2.2190</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">p-value</td>
+<td style="text-align: right;">0.0265</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The p-value measures how surprising the observed difference would be if the null hypothesis were true. A small p-value suggests that the observed difference would be unlikely under the assumption that the two CTAs have the same true sign-up rate.</p>
+<p>It is important not to interpret the p-value as the probability that the null hypothesis is true. Instead, it is a probability about the data, calculated under the assumption that the null hypothesis is true. In this simulated example, the test helps decide whether the observed difference is large relative to its sampling uncertainty.</p>
+</section>
+<section id="the-t-test-as-a-regression" class="level2">
+<h2 class="anchored" data-anchor-id="the-t-test-as-a-regression">The T-Test as a Regression</h2>
+<p>The two-sample A/B test can also be written as a simple regression. This is useful because regression provides a flexible framework that can be extended to include additional variables, controls, interactions, or more than two treatment groups.</p>
+<p>I combine the CTA A and CTA B observations into one dataset. The outcome variable <code>signed_up</code> equals 1 if the visitor signs up and 0 otherwise. I define a treatment indicator <code>cta_A</code> that equals 1 if the visitor saw CTA A and 0 if the visitor saw CTA B.</p>
+<p>The regression model is:</p>
+<p><code>signed_up = beta_0 + beta_1 * cta_A + error</code></p>
+<p>In this setup, <code>beta_0</code> is the average sign-up rate for CTA B, because CTA B is the reference group where <code>cta_A = 0</code>. The coefficient <code>beta_1</code> is the difference between CTA A and CTA B:</p>
+<p><code>beta_1 = average(CTA A) - average(CTA B)</code></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ab_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">signed_up =</span> <span class="fu">c</span>(A, B),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">cta_A =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, n_A), <span class="fu">rep</span>(<span class="dv">0</span>, n_B))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>reg_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(signed_up <span class="sc">~</span> cta_A, <span class="at">data =</span> ab_data)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>reg_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(reg_model)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>reg_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Term =</span> <span class="fu">rownames</span>(<span class="fu">coef</span>(reg_summary)),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate =</span> <span class="fu">coef</span>(reg_summary)[, <span class="st">"Estimate"</span>],</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Std_Error =</span> <span class="fu">coef</span>(reg_summary)[, <span class="st">"Std. Error"</span>],</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Statistic =</span> <span class="fu">coef</span>(reg_summary)[, <span class="st">"t value"</span>],</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">P_Value =</span> <span class="fu">coef</span>(reg_summary)[, <span class="st">"Pr(&gt;|t|)"</span>]</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  reg_table,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Regression version of the two-sample A/B test"</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Regression version of the two-sample A/B test</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Term</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">Std_Error</th>
+<th style="text-align: right;">Statistic</th>
+<th style="text-align: right;">P_Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">0.172</td>
+<td style="text-align: right;">0.0124</td>
+<td style="text-align: right;">13.8331</td>
+<td style="text-align: right;">0.0000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cta_A</td>
+<td style="text-align: left;">cta_A</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.0176</td>
+<td style="text-align: right;">2.2179</td>
+<td style="text-align: right;">0.0267</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The coefficient on <code>cta_A</code> is the same as the difference in sample sign-up rates: <code>CTA A rate - CTA B rate</code>. The intercept is the sample sign-up rate for CTA B. This shows that the basic A/B test and a simple regression are two ways of expressing the same comparison.</p>
+<p>The regression framing is especially useful in business experiments because it can be expanded. For example, if the website team later wanted to adjust for device type, traffic source, or visitor segment, those variables could be added to the regression model while keeping the same basic idea.</p>
+</section>
+<section id="the-problem-with-peeking" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem-with-peeking">The Problem with Peeking</h2>
+<p>In practice, decision-makers often want to check experiment results before the planned sample size has been reached. This is tempting because it feels efficient: if one CTA already looks better, why wait? However, repeated peeking creates a serious problem for classical frequentist inference.</p>
+<p>Suppose the team plans to assign 1,000 visitors to each CTA, but the boss wants to check the p-value every 100 visitors per group. If any of the 10 tests is significant at the 0.05 level, she wants to stop the experiment and declare a winner.</p>
+<p>The issue is that each test creates another opportunity for a false positive. A single test at the 0.05 level has a 5% chance of rejecting the null hypothesis when the null is true. But if we repeatedly test the accumulating data, the chance of getting at least one false positive across all peeks becomes much larger than 5%.</p>
+<p>To demonstrate this, I simulate a world where the null hypothesis is true. Both CTA A and CTA B have the same true sign-up probability of 0.20. Therefore, any significant result is a false positive.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2026</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>peek_sims <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>peek_points <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">100</span>, <span class="dv">1000</span>, <span class="at">by =</span> <span class="dv">100</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>false_positive <span class="ot">&lt;-</span> <span class="fu">logical</span>(peek_sims)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sim <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>peek_sims) {</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  A_null <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.20</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  B_null <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.20</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  p_values <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(peek_points))</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(peek_points)) {</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> peek_points[j]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    A_peek <span class="ot">&lt;-</span> A_null[<span class="dv">1</span><span class="sc">:</span>n]</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    B_peek <span class="ot">&lt;-</span> B_null[<span class="dv">1</span><span class="sc">:</span>n]</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    p_A_peek <span class="ot">&lt;-</span> <span class="fu">mean</span>(A_peek)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    p_B_peek <span class="ot">&lt;-</span> <span class="fu">mean</span>(B_peek)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    theta_peek <span class="ot">&lt;-</span> p_A_peek <span class="sc">-</span> p_B_peek</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    se_peek <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>      p_A_peek <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_A_peek) <span class="sc">/</span> n <span class="sc">+</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        p_B_peek <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_B_peek) <span class="sc">/</span> n</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    z_peek <span class="ot">&lt;-</span> theta_peek <span class="sc">/</span> se_peek</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    p_values[j] <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(z_peek)))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  false_positive[sim] <span class="ot">&lt;-</span> <span class="fu">any</span>(p_values <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>peeking_false_positive_rate <span class="ot">&lt;-</span> <span class="fu">mean</span>(false_positive)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>peek_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">Scenario =</span> <span class="fu">c</span>(</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"One test at alpha = 0.05"</span>,</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Repeated peeking every 100 visitors"</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">False_Positive_Rate =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, peeking_false_positive_rate)</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  peek_table,</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"False positive rate with repeated peeking"</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>False positive rate with repeated peeking</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Scenario</th>
+<th style="text-align: right;">False_Positive_Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">One test at alpha = 0.05</td>
+<td style="text-align: right;">0.0500</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repeated peeking every 100 visitors</td>
+<td style="text-align: right;">0.1985</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The simulation shows that repeated peeking inflates the false positive rate above the intended 5% level. This happens because the experimenter is no longer conducting one hypothesis test. Instead, the experimenter is giving herself multiple chances to find a significant result.</p>
+<p>For A/B testing, this means that checking the p-value repeatedly and stopping as soon as it becomes significant can make weak or nonexistent effects look real. A better practice is to pre-specify the sample size and analysis plan before the experiment begins, or to use statistical methods specifically designed for sequential testing.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
