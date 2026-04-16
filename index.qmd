@@ -8,8 +8,6 @@ about:
       href: mailto:luorunyu54@gmail.com
     - icon: linkedin
       href: https://www.linkedin.com/in/luo-runyu/
-    - icon: file-earmark-text
-      href: files/Runyu_Luo_Resume.pdf
 
 ---
 
