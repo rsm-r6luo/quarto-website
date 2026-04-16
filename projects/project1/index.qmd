@@ -1,0 +1,19 @@
+
+全部删掉。
+
+换成这个纯文字版本：
+
+```markdown
+---
+title: "Analysis of Cars"
+author: "Runyu Luo"
+date: today
+---
+
+# Header
+
+This is a sample project post created to test the blog listing page.
+
+## Sub-header
+
+This page confirms that my Quarto website can display individual project posts.

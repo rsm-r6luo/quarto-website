@@ -1,0 +1,18 @@
+---
+title: "Runyu Luo"
+image: "files/profile_pic.jpg"
+about:
+  template: jolla
+  links:
+    - icon: envelope
+      href: mailto:luorunyu54@gmail.com
+    - icon: linkedin
+      href: https://www.linkedin.com/in/luo-runyu/
+    - icon: file-earmark-text
+      href: files/Runyu_Luo_Resume.pdf
+
+---
+
+This is a Quarto website.
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.

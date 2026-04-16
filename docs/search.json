@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "projects/project1/index.html",
+    "href": "projects/project1/index.html",
+    "title": "Analysis of Cars",
+    "section": "",
+    "text": "全部删掉。\n换成这个纯文字版本："
+  },
+  {
+    "objectID": "projects/project1/index.html#markdown",
+    "href": "projects/project1/index.html#markdown",
+    "title": "Analysis of Cars",
+    "section": "```markdown",
+    "text": "```markdown\ntitle: “Analysis of Cars” author: “Runyu Luo” date: today —"
+  },
+  {
+    "objectID": "projects/project1/index.html#sub-header",
+    "href": "projects/project1/index.html#sub-header",
+    "title": "Analysis of Cars",
+    "section": "Sub-header",
+    "text": "Sub-header\nThis page confirms that my Quarto website can display individual project posts."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Runyu Luo",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  }
+]

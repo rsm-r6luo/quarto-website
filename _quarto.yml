@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs  # <-- add this
+
+website:
+  title: "quarto-website"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: resume.qmd
+        text: Resume
+      - href: projects.qmd
+        text: Projects
+      - about.qmd
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+    toc: true
