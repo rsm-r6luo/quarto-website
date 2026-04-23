@@ -1,0 +1,185 @@
+---
+title: "Card and Krueger (1994)"
+subtitle: "Diff in Diff"
+author: "Runyu Luo"
+date: today
+---
+
+
+## Introduction
+
+
+Card and Krueger (1994) study whether an increase in the minimum wage reduces employment in the fast-food industry. Their setting is New Jersey’s minimum wage increase from \$4.25 to \$5.05 per hour on April 1, 1992. To evaluate the policy, they surveyed 410 fast-food restaurants in New Jersey and eastern Pennsylvania before and after the increase. Pennsylvania serves as a comparison group because its minimum wage did not change during the same period. :contentReference[oaicite:0]{index=0}
+
+The paper uses a difference-in-differences style comparison. The authors compare employment changes over time in New Jersey restaurants to employment changes in Pennsylvania restaurants. They also compare lower-wage and higher-wage stores within New Jersey. This design allows them to estimate the effect of the minimum wage while differencing out broader time trends that affected both states. :contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2}
+
+The main finding of the paper is that the increase in New Jersey’s minimum wage did not reduce employment in the sampled fast-food restaurants. In this post, I replicate selected results from the paper, focusing on a subset of Table 2, the first three columns and first three rows of Table 3, and column (i) of Table 4. :contentReference[oaicite:3]{index=3} :contentReference[oaicite:4]{index=4} :contentReference[oaicite:5]{index=5}
+
+## Main Analysis
+
+
+### Replicating Table 3
+
+```{r}
+library(tidyverse)
+```
+```{r}
+cols <- c(
+  "SHEET","CHAINR","CO_OWNED","STATER","SOUTHJ","CENTRALJ","NORTHJ",
+  "PA1","PA2","SHORE","NCALLS","EMPFT","EMPPT","NMGRS","WAGE_ST",
+  "INCTIME","FIRSTINC","BONUS","PCTAFF","MEAL","OPEN","HRSOPEN",
+  "PSODA","PFRY","PENTREE","NREGS","NREGS11","TYPE2","STATUS2","DATE2",
+  "NCALLS2","EMPFT2","EMPPT2","NMGRS2","WAGE_ST2","INCTIME2","FIRSTIN2",
+  "SPECIAL2","MEALS2","OPEN2R","HRSOPEN2","PSODA2","PFRY2","PENTREE2",
+  "NREGS2","NREGS112"
+)
+
+nj <- read.table(
+  "/Users/luorunyu/Downloads/njmin/public.dat",
+  header = FALSE,
+  na.strings = c(".", "NA", ""),
+  col.names = cols
+)
+```
+
+```{r}
+nj <- nj %>%
+  mutate(
+    NJ = STATER,
+    EMPTOT = EMPPT * 0.5 + EMPFT + NMGRS,
+    EMPTOT2 = EMPPT2 * 0.5 + EMPFT2 + NMGRS2,
+    DEMP = EMPTOT2 - EMPTOT
+  )
+```
+
+
+```{r}
+before_means <- nj %>%
+  group_by(NJ) %>%
+  summarise(before = mean(EMPTOT, na.rm = TRUE), .groups = "drop")
+
+after_means <- nj %>%
+  group_by(NJ) %>%
+  summarise(after = mean(EMPTOT2, na.rm = TRUE), .groups = "drop")
+
+table3_rep <- tibble(
+  row = c(
+    "FTE employment before",
+    "FTE employment after",
+    "Change in mean FTE employment"
+  ),
+  PA = c(
+    before_means$before[before_means$NJ == 0],
+    after_means$after[after_means$NJ == 0],
+    after_means$after[after_means$NJ == 0] - before_means$before[before_means$NJ == 0]
+  ),
+  NJ = c(
+    before_means$before[before_means$NJ == 1],
+    after_means$after[after_means$NJ == 1],
+    after_means$after[after_means$NJ == 1] - before_means$before[before_means$NJ == 1]
+  )
+) %>%
+  mutate(`NJ - PA` = NJ - PA) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+table3_rep
+```
+
+
+Table 3 reports average full-time-equivalent employment before and after the policy change for Pennsylvania and New Jersey stores, along with the difference between the two states. I construct FTE employment using the same formula shown in the original SAS checking file: full-time workers plus managers plus half of part-time workers.
+
+### Replicating Table 4, Column (i)
+```{r}
+nj <- nj %>%
+  mutate(
+    DWAGE = WAGE_ST2 - WAGE_ST,
+    CLOSED = as.integer(STATUS2 == 3)
+  )
+```
+```{r}
+c1 <- nj %>%
+  filter(!is.na(DEMP)) %>%
+  filter(CLOSED == 1 | (CLOSED == 0 & !is.na(DWAGE)))
+```
+
+```{r}
+m1 <- lm(DEMP ~ NJ, data = c1)
+summary(m1)
+library(broom)
+tidy(m1)
+```
+
+Column (i) of Table 4 regresses the change in full-time-equivalent employment on a New Jersey indicator. Following the original SAS checking file, I keep stores with nonmissing employment changes and either a store closure in wave 2 or valid wage information across waves. This reproduces the sample restriction used for the original regression.
+
+My estimate should be close to the published coefficient in the paper. In the original Table 4, column (i), the coefficient on the New Jersey dummy is about 2.33, with a standard error of about 1.19.
+
+## Something Additional
+### Selected Results from Table 2
+```{r}
+nj <- nj %>%
+  mutate(
+    FRACFT = EMPFT / EMPTOT,
+    FRACFT2 = ifelse(EMPTOT2 > 0, EMPFT2 / EMPTOT2, NA),
+    ATMIN = ifelse(WAGE_ST == 4.25, 1, 0),
+    NEWMIN = ifelse(WAGE_ST2 == 5.05, 1, 0),
+    PMEAL = PSODA + PFRY + PENTREE,
+    PMEAL2 = PSODA2 + PFRY2 + PENTREE2
+  )
+```
+```{r}
+table2_selected <- tibble(
+  Variable = c(
+    "FTE employment (wave 1)",
+    "Percent full-time employees (wave 1)",
+    "Starting wage (wave 1)",
+    "Wage = $4.25 (wave 1)",
+    "Price of full meal (wave 1)",
+    "Hours open (weekday, wave 1)",
+    "Recruiting bonus (wave 1)",
+    "FTE employment (wave 2)",
+    "Percent full-time employees (wave 2)",
+    "Starting wage (wave 2)",
+    "Wage = $5.05 (wave 2)",
+    "Price of full meal (wave 2)",
+    "Hours open (weekday, wave 2)",
+    "Special/recruiting measure (wave 2)"
+  ),
+  PA = c(
+    mean(nj$EMPTOT[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$FRACFT[nj$NJ == 0], na.rm = TRUE) * 100,
+    mean(nj$WAGE_ST[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$ATMIN[nj$NJ == 0], na.rm = TRUE) * 100,
+    mean(nj$PMEAL[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$HRSOPEN[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$BONUS[nj$NJ == 0], na.rm = TRUE) * 100,
+    mean(nj$EMPTOT2[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$FRACFT2[nj$NJ == 0], na.rm = TRUE) * 100,
+    mean(nj$WAGE_ST2[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$NEWMIN[nj$NJ == 0], na.rm = TRUE) * 100,
+    mean(nj$PMEAL2[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$HRSOPEN2[nj$NJ == 0], na.rm = TRUE),
+    mean(nj$SPECIAL2[nj$NJ == 0], na.rm = TRUE) * 100
+  ),
+  NJ = c(
+    mean(nj$EMPTOT[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$FRACFT[nj$NJ == 1], na.rm = TRUE) * 100,
+    mean(nj$WAGE_ST[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$ATMIN[nj$NJ == 1], na.rm = TRUE) * 100,
+    mean(nj$PMEAL[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$HRSOPEN[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$BONUS[nj$NJ == 1], na.rm = TRUE) * 100,
+    mean(nj$EMPTOT2[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$FRACFT2[nj$NJ == 1], na.rm = TRUE) * 100,
+    mean(nj$WAGE_ST2[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$NEWMIN[nj$NJ == 1], na.rm = TRUE) * 100,
+    mean(nj$PMEAL2[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$HRSOPEN2[nj$NJ == 1], na.rm = TRUE),
+    mean(nj$SPECIAL2[nj$NJ == 1], na.rm = TRUE) * 100
+  )
+) %>%
+  mutate(`NJ - PA` = NJ - PA) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+table2_selected
+```
+As an additional replication exercise, I reproduce a selected subset of Table 2. These descriptive statistics summarize differences between New Jersey and Pennsylvania stores before and after the minimum wage increase. The results show that starting wages rose substantially in New Jersey in wave 2, while employment levels did not fall relative to Pennsylvania.

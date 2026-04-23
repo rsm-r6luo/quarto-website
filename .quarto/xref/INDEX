@@ -19,5 +19,8 @@
   },
   "posts.qmd": {
     "posts.html": "415e443a"
+  },
+  "projects/project2/hw2_questions.qmd": {
+    "hw2_questions.html": "95cd2e66"
   }
 }
