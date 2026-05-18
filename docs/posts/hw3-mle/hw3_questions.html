@@ -257,7 +257,7 @@ window.Quarto = {
 <section id="exploring-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="exploring-the-data">Exploring the Data</h2>
 <p>::: First, I load the Blueprinty customer data and inspect the main variables used in the analysis.</p>
-<div id="6ad9d8fc" class="cell" data-execution_count="1">
+<div id="ded14029" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -327,7 +327,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="2c9ac275" class="cell" data-execution_count="2">
+<div id="97ee1e2f" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
@@ -363,7 +363,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="2a4217bc" class="cell" data-execution_count="3">
+<div id="1007ebc6" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -398,7 +398,7 @@ L(\lambda|Y_1,\ldots,Y_n)
 = \sum_{i=1}^n \left(Y_i \log(\lambda) - \lambda - \log(Y_i!)\right)
 \]</span></p>
 <p>This log-likelihood tells us how plausible different values of <span class="math inline">\(\lambda\)</span> are given the observed patent counts. The maximum likelihood estimate is the value of <span class="math inline">\(\lambda\)</span> that maximizes this expression.</p>
-<div id="08a38f33" class="cell" data-execution_count="4">
+<div id="452d1c83" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -419,7 +419,7 @@ L(\lambda|Y_1,\ldots,Y_n)
 </details>
 </div>
 <p>The next plot evaluates the log-likelihood over a range of possible values of <span class="math inline">\(\lambda\)</span>.</p>
-<div id="ba7fc716" class="cell" data-execution_count="5">
+<div id="805fcc09" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lambda_grid <span class="op">=</span> np.linspace(<span class="fl">0.1</span>, <span class="dv">8</span>, <span class="dv">300</span>)</span>
@@ -467,7 +467,7 @@ L(\lambda|Y_1,\ldots,Y_n)
 \hat{\lambda}_{MLE} = \frac{1}{n}\sum_{i=1}^n Y_i = \bar{Y}
 \]</span></p>
 <p>So for the simple Poisson model with one common rate parameter, the MLE is exactly the sample mean.</p>
-<div id="369b830d" class="cell" data-execution_count="6">
+<div id="4d7b4b0f" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> negative_loglikelihood_log_lambda(log_lam, Y):</span>
@@ -537,7 +537,7 @@ Y_i \sim \text{Poisson}(\lambda_i)
 <section id="building-the-design-matrix" class="level3">
 <h3 class="anchored" data-anchor-id="building-the-design-matrix">Building the Design Matrix</h3>
 <p>The regression model includes firm age, firm age squared, region indicators, and customer status. I include age squared because the relationship between firm age and patent output may not be perfectly linear. I also use region dummy variables to control for regional differences in innovation activity.</p>
-<div id="f788836a" class="cell" data-execution_count="7">
+<div id="7dd563cc" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -657,7 +657,7 @@ Y_i \sim \text{Poisson}(\lambda_i)
 = \sum_{i=1}^n \left(Y_i X_i'\beta - \exp(X_i'\beta) - \log(Y_i!)\right)
 \]</span></p>
 <p>The term <span class="math inline">\(X_i'\beta\)</span> is the linear predictor. The term <span class="math inline">\(\exp(X_i'\beta)\)</span> is the predicted expected patent count for firm <span class="math inline">\(i\)</span>.</p>
-<div id="51f9dddf" class="cell" data-execution_count="8">
+<div id="003b707e" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> poisson_regression_loglikelihood(beta, Y, X):</span>
@@ -698,7 +698,7 @@ Y_i \sim \text{Poisson}(\lambda_i)
 <section id="estimating-the-model-with-numerical-optimization" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-the-model-with-numerical-optimization">Estimating the Model with Numerical Optimization</h3>
 <p>I estimate the model by minimizing the negative log-likelihood. The starting value for the intercept is set to the log of the average number of patents, while the other coefficients start at zero.</p>
-<div id="86a0aec7" class="cell" data-execution_count="9">
+<div id="1d5fd160" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>initial_beta <span class="op">=</span> np.zeros(X.shape[<span class="dv">1</span>])</span>
@@ -827,101 +827,101 @@ Y_i \sim \text{Poisson}(\lambda_i)
 </div>
 </div>
 </div>
-<div id="14c69104" class="cell" data-execution_count="10">
+<div id="a5894fc5" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display" data-execution_count="10">
 <style type="text/css">
 </style>
 
-<div id="T_df9a7" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
+<div id="T_f46d9" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_df9a7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_f46d9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;1: Poisson regression estimated manually by MLE
 </figcaption>
-<div aria-describedby="T_df9a7-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table id="T_df9a7" class="caption-top table table-sm table-striped small">
+<div aria-describedby="T_f46d9-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table id="T_f46d9" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
-<th id="T_df9a7_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Term</th>
-<th id="T_df9a7_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Coefficient</th>
-<th id="T_df9a7_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Std. Error</th>
-<th id="T_df9a7_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">z value</th>
-<th id="T_df9a7_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">p value</th>
-<th id="T_df9a7_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Rate Ratio</th>
+<th id="T_f46d9_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Term</th>
+<th id="T_f46d9_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Coefficient</th>
+<th id="T_f46d9_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Std. Error</th>
+<th id="T_f46d9_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">z value</th>
+<th id="T_f46d9_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">p value</th>
+<th id="T_f46d9_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Rate Ratio</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<th id="T_df9a7_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
-<td id="T_df9a7_row0_col0" class="data row0 col0">Intercept</td>
-<td id="T_df9a7_row0_col1" class="data row0 col1">-0.5089</td>
-<td id="T_df9a7_row0_col2" class="data row0 col2">0.1832</td>
-<td id="T_df9a7_row0_col3" class="data row0 col3">-2.78</td>
-<td id="T_df9a7_row0_col4" class="data row0 col4">0.0055</td>
-<td id="T_df9a7_row0_col5" class="data row0 col5">0.601</td>
+<th id="T_f46d9_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
+<td id="T_f46d9_row0_col0" class="data row0 col0">Intercept</td>
+<td id="T_f46d9_row0_col1" class="data row0 col1">-0.5089</td>
+<td id="T_f46d9_row0_col2" class="data row0 col2">0.1832</td>
+<td id="T_f46d9_row0_col3" class="data row0 col3">-2.78</td>
+<td id="T_f46d9_row0_col4" class="data row0 col4">0.0055</td>
+<td id="T_f46d9_row0_col5" class="data row0 col5">0.601</td>
 </tr>
 <tr class="even">
-<th id="T_df9a7_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
-<td id="T_df9a7_row1_col0" class="data row1 col0">age</td>
-<td id="T_df9a7_row1_col1" class="data row1 col1">0.1486</td>
-<td id="T_df9a7_row1_col2" class="data row1 col2">0.0139</td>
-<td id="T_df9a7_row1_col3" class="data row1 col3">10.72</td>
-<td id="T_df9a7_row1_col4" class="data row1 col4">0.0000</td>
-<td id="T_df9a7_row1_col5" class="data row1 col5">1.160</td>
+<th id="T_f46d9_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
+<td id="T_f46d9_row1_col0" class="data row1 col0">age</td>
+<td id="T_f46d9_row1_col1" class="data row1 col1">0.1486</td>
+<td id="T_f46d9_row1_col2" class="data row1 col2">0.0139</td>
+<td id="T_f46d9_row1_col3" class="data row1 col3">10.72</td>
+<td id="T_f46d9_row1_col4" class="data row1 col4">0.0000</td>
+<td id="T_f46d9_row1_col5" class="data row1 col5">1.160</td>
 </tr>
 <tr class="odd">
-<th id="T_df9a7_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
-<td id="T_df9a7_row2_col0" class="data row2 col0">age_sq</td>
-<td id="T_df9a7_row2_col1" class="data row2 col1">-0.0030</td>
-<td id="T_df9a7_row2_col2" class="data row2 col2">0.0003</td>
-<td id="T_df9a7_row2_col3" class="data row2 col3">-11.51</td>
-<td id="T_df9a7_row2_col4" class="data row2 col4">0.0000</td>
-<td id="T_df9a7_row2_col5" class="data row2 col5">0.997</td>
+<th id="T_f46d9_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
+<td id="T_f46d9_row2_col0" class="data row2 col0">age_sq</td>
+<td id="T_f46d9_row2_col1" class="data row2 col1">-0.0030</td>
+<td id="T_f46d9_row2_col2" class="data row2 col2">0.0003</td>
+<td id="T_f46d9_row2_col3" class="data row2 col3">-11.51</td>
+<td id="T_f46d9_row2_col4" class="data row2 col4">0.0000</td>
+<td id="T_f46d9_row2_col5" class="data row2 col5">0.997</td>
 </tr>
 <tr class="even">
-<th id="T_df9a7_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">3</th>
-<td id="T_df9a7_row3_col0" class="data row3 col0">region_Northeast</td>
-<td id="T_df9a7_row3_col1" class="data row3 col1">0.0292</td>
-<td id="T_df9a7_row3_col2" class="data row3 col2">0.0436</td>
-<td id="T_df9a7_row3_col3" class="data row3 col3">0.67</td>
-<td id="T_df9a7_row3_col4" class="data row3 col4">0.5037</td>
-<td id="T_df9a7_row3_col5" class="data row3 col5">1.030</td>
+<th id="T_f46d9_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">3</th>
+<td id="T_f46d9_row3_col0" class="data row3 col0">region_Northeast</td>
+<td id="T_f46d9_row3_col1" class="data row3 col1">0.0292</td>
+<td id="T_f46d9_row3_col2" class="data row3 col2">0.0436</td>
+<td id="T_f46d9_row3_col3" class="data row3 col3">0.67</td>
+<td id="T_f46d9_row3_col4" class="data row3 col4">0.5037</td>
+<td id="T_f46d9_row3_col5" class="data row3 col5">1.030</td>
 </tr>
 <tr class="odd">
-<th id="T_df9a7_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">4</th>
-<td id="T_df9a7_row4_col0" class="data row4 col0">region_Northwest</td>
-<td id="T_df9a7_row4_col1" class="data row4 col1">-0.0176</td>
-<td id="T_df9a7_row4_col2" class="data row4 col2">0.0538</td>
-<td id="T_df9a7_row4_col3" class="data row4 col3">-0.33</td>
-<td id="T_df9a7_row4_col4" class="data row4 col4">0.7438</td>
-<td id="T_df9a7_row4_col5" class="data row4 col5">0.983</td>
+<th id="T_f46d9_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">4</th>
+<td id="T_f46d9_row4_col0" class="data row4 col0">region_Northwest</td>
+<td id="T_f46d9_row4_col1" class="data row4 col1">-0.0176</td>
+<td id="T_f46d9_row4_col2" class="data row4 col2">0.0538</td>
+<td id="T_f46d9_row4_col3" class="data row4 col3">-0.33</td>
+<td id="T_f46d9_row4_col4" class="data row4 col4">0.7438</td>
+<td id="T_f46d9_row4_col5" class="data row4 col5">0.983</td>
 </tr>
 <tr class="even">
-<th id="T_df9a7_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">5</th>
-<td id="T_df9a7_row5_col0" class="data row5 col0">region_South</td>
-<td id="T_df9a7_row5_col1" class="data row5 col1">0.0566</td>
-<td id="T_df9a7_row5_col2" class="data row5 col2">0.0527</td>
-<td id="T_df9a7_row5_col3" class="data row5 col3">1.07</td>
-<td id="T_df9a7_row5_col4" class="data row5 col4">0.2828</td>
-<td id="T_df9a7_row5_col5" class="data row5 col5">1.058</td>
+<th id="T_f46d9_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">5</th>
+<td id="T_f46d9_row5_col0" class="data row5 col0">region_South</td>
+<td id="T_f46d9_row5_col1" class="data row5 col1">0.0566</td>
+<td id="T_f46d9_row5_col2" class="data row5 col2">0.0527</td>
+<td id="T_f46d9_row5_col3" class="data row5 col3">1.07</td>
+<td id="T_f46d9_row5_col4" class="data row5 col4">0.2828</td>
+<td id="T_f46d9_row5_col5" class="data row5 col5">1.058</td>
 </tr>
 <tr class="odd">
-<th id="T_df9a7_level0_row6" class="row_heading level0 row6" data-quarto-table-cell-role="th">6</th>
-<td id="T_df9a7_row6_col0" class="data row6 col0">region_Southwest</td>
-<td id="T_df9a7_row6_col1" class="data row6 col1">0.0506</td>
-<td id="T_df9a7_row6_col2" class="data row6 col2">0.0472</td>
-<td id="T_df9a7_row6_col3" class="data row6 col3">1.07</td>
-<td id="T_df9a7_row6_col4" class="data row6 col4">0.2839</td>
-<td id="T_df9a7_row6_col5" class="data row6 col5">1.052</td>
+<th id="T_f46d9_level0_row6" class="row_heading level0 row6" data-quarto-table-cell-role="th">6</th>
+<td id="T_f46d9_row6_col0" class="data row6 col0">region_Southwest</td>
+<td id="T_f46d9_row6_col1" class="data row6 col1">0.0506</td>
+<td id="T_f46d9_row6_col2" class="data row6 col2">0.0472</td>
+<td id="T_f46d9_row6_col3" class="data row6 col3">1.07</td>
+<td id="T_f46d9_row6_col4" class="data row6 col4">0.2839</td>
+<td id="T_f46d9_row6_col5" class="data row6 col5">1.052</td>
 </tr>
 <tr class="even">
-<th id="T_df9a7_level0_row7" class="row_heading level0 row7" data-quarto-table-cell-role="th">7</th>
-<td id="T_df9a7_row7_col0" class="data row7 col0">iscustomer</td>
-<td id="T_df9a7_row7_col1" class="data row7 col1">0.2076</td>
-<td id="T_df9a7_row7_col2" class="data row7 col2">0.0309</td>
-<td id="T_df9a7_row7_col3" class="data row7 col3">6.72</td>
-<td id="T_df9a7_row7_col4" class="data row7 col4">0.0000</td>
-<td id="T_df9a7_row7_col5" class="data row7 col5">1.231</td>
+<th id="T_f46d9_level0_row7" class="row_heading level0 row7" data-quarto-table-cell-role="th">7</th>
+<td id="T_f46d9_row7_col0" class="data row7 col0">iscustomer</td>
+<td id="T_f46d9_row7_col1" class="data row7 col1">0.2076</td>
+<td id="T_f46d9_row7_col2" class="data row7 col2">0.0309</td>
+<td id="T_f46d9_row7_col3" class="data row7 col3">6.72</td>
+<td id="T_f46d9_row7_col4" class="data row7 col4">0.0000</td>
+<td id="T_f46d9_row7_col5" class="data row7 col5">1.231</td>
 </tr>
 </tbody>
 </table>
@@ -935,7 +935,7 @@ Table&nbsp;1: Poisson regression estimated manually by MLE
 <section id="checking-the-manual-mle-against-statsmodels" class="level3">
 <h3 class="anchored" data-anchor-id="checking-the-manual-mle-against-statsmodels">Checking the Manual MLE Against Statsmodels</h3>
 <p>To verify that the manually coded likelihood function works correctly, I fit the same Poisson regression using <code>statsmodels</code>.</p>
-<div id="017affc4" class="cell" data-execution_count="11">
+<div id="981c60b6" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>glm_model <span class="op">=</span> sm.GLM(</span>
@@ -1053,101 +1053,101 @@ Table&nbsp;1: Poisson regression estimated manually by MLE
 </div>
 </div>
 </div>
-<div id="43e74683" class="cell" data-execution_count="12">
+<div id="c43dd895" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display" data-execution_count="12">
 <style type="text/css">
 </style>
 
-<div id="T_75755" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
+<div id="T_b46fa" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_75755-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_b46fa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;2: Manual MLE estimates compared with statsmodels GLM
 </figcaption>
-<div aria-describedby="T_75755-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table id="T_75755" class="caption-top table table-sm table-striped small">
+<div aria-describedby="T_b46fa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table id="T_b46fa" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
-<th id="T_75755_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Term</th>
-<th id="T_75755_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Manual MLE</th>
-<th id="T_75755_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">GLM Estimate</th>
-<th id="T_75755_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Manual SE</th>
-<th id="T_75755_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">GLM SE</th>
-<th id="T_75755_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Estimate Difference</th>
+<th id="T_b46fa_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Term</th>
+<th id="T_b46fa_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Manual MLE</th>
+<th id="T_b46fa_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">GLM Estimate</th>
+<th id="T_b46fa_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Manual SE</th>
+<th id="T_b46fa_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">GLM SE</th>
+<th id="T_b46fa_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Estimate Difference</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<th id="T_75755_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
-<td id="T_75755_row0_col0" class="data row0 col0">Intercept</td>
-<td id="T_75755_row0_col1" class="data row0 col1">-0.5089</td>
-<td id="T_75755_row0_col2" class="data row0 col2">-0.5089</td>
-<td id="T_75755_row0_col3" class="data row0 col3">0.1832</td>
-<td id="T_75755_row0_col4" class="data row0 col4">0.1832</td>
-<td id="T_75755_row0_col5" class="data row0 col5">0.000000</td>
+<th id="T_b46fa_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
+<td id="T_b46fa_row0_col0" class="data row0 col0">Intercept</td>
+<td id="T_b46fa_row0_col1" class="data row0 col1">-0.5089</td>
+<td id="T_b46fa_row0_col2" class="data row0 col2">-0.5089</td>
+<td id="T_b46fa_row0_col3" class="data row0 col3">0.1832</td>
+<td id="T_b46fa_row0_col4" class="data row0 col4">0.1832</td>
+<td id="T_b46fa_row0_col5" class="data row0 col5">0.000000</td>
 </tr>
 <tr class="even">
-<th id="T_75755_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
-<td id="T_75755_row1_col0" class="data row1 col0">age</td>
-<td id="T_75755_row1_col1" class="data row1 col1">0.1486</td>
-<td id="T_75755_row1_col2" class="data row1 col2">0.1486</td>
-<td id="T_75755_row1_col3" class="data row1 col3">0.0139</td>
-<td id="T_75755_row1_col4" class="data row1 col4">0.0139</td>
-<td id="T_75755_row1_col5" class="data row1 col5">-0.000000</td>
+<th id="T_b46fa_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
+<td id="T_b46fa_row1_col0" class="data row1 col0">age</td>
+<td id="T_b46fa_row1_col1" class="data row1 col1">0.1486</td>
+<td id="T_b46fa_row1_col2" class="data row1 col2">0.1486</td>
+<td id="T_b46fa_row1_col3" class="data row1 col3">0.0139</td>
+<td id="T_b46fa_row1_col4" class="data row1 col4">0.0139</td>
+<td id="T_b46fa_row1_col5" class="data row1 col5">-0.000000</td>
 </tr>
 <tr class="odd">
-<th id="T_75755_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
-<td id="T_75755_row2_col0" class="data row2 col0">age_sq</td>
-<td id="T_75755_row2_col1" class="data row2 col1">-0.0030</td>
-<td id="T_75755_row2_col2" class="data row2 col2">-0.0030</td>
-<td id="T_75755_row2_col3" class="data row2 col3">0.0003</td>
-<td id="T_75755_row2_col4" class="data row2 col4">0.0003</td>
-<td id="T_75755_row2_col5" class="data row2 col5">0.000000</td>
+<th id="T_b46fa_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
+<td id="T_b46fa_row2_col0" class="data row2 col0">age_sq</td>
+<td id="T_b46fa_row2_col1" class="data row2 col1">-0.0030</td>
+<td id="T_b46fa_row2_col2" class="data row2 col2">-0.0030</td>
+<td id="T_b46fa_row2_col3" class="data row2 col3">0.0003</td>
+<td id="T_b46fa_row2_col4" class="data row2 col4">0.0003</td>
+<td id="T_b46fa_row2_col5" class="data row2 col5">0.000000</td>
 </tr>
 <tr class="even">
-<th id="T_75755_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">3</th>
-<td id="T_75755_row3_col0" class="data row3 col0">region_Northeast</td>
-<td id="T_75755_row3_col1" class="data row3 col1">0.0292</td>
-<td id="T_75755_row3_col2" class="data row3 col2">0.0292</td>
-<td id="T_75755_row3_col3" class="data row3 col3">0.0436</td>
-<td id="T_75755_row3_col4" class="data row3 col4">0.0436</td>
-<td id="T_75755_row3_col5" class="data row3 col5">0.000000</td>
+<th id="T_b46fa_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">3</th>
+<td id="T_b46fa_row3_col0" class="data row3 col0">region_Northeast</td>
+<td id="T_b46fa_row3_col1" class="data row3 col1">0.0292</td>
+<td id="T_b46fa_row3_col2" class="data row3 col2">0.0292</td>
+<td id="T_b46fa_row3_col3" class="data row3 col3">0.0436</td>
+<td id="T_b46fa_row3_col4" class="data row3 col4">0.0436</td>
+<td id="T_b46fa_row3_col5" class="data row3 col5">0.000000</td>
 </tr>
 <tr class="odd">
-<th id="T_75755_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">4</th>
-<td id="T_75755_row4_col0" class="data row4 col0">region_Northwest</td>
-<td id="T_75755_row4_col1" class="data row4 col1">-0.0176</td>
-<td id="T_75755_row4_col2" class="data row4 col2">-0.0176</td>
-<td id="T_75755_row4_col3" class="data row4 col3">0.0538</td>
-<td id="T_75755_row4_col4" class="data row4 col4">0.0538</td>
-<td id="T_75755_row4_col5" class="data row4 col5">0.000000</td>
+<th id="T_b46fa_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">4</th>
+<td id="T_b46fa_row4_col0" class="data row4 col0">region_Northwest</td>
+<td id="T_b46fa_row4_col1" class="data row4 col1">-0.0176</td>
+<td id="T_b46fa_row4_col2" class="data row4 col2">-0.0176</td>
+<td id="T_b46fa_row4_col3" class="data row4 col3">0.0538</td>
+<td id="T_b46fa_row4_col4" class="data row4 col4">0.0538</td>
+<td id="T_b46fa_row4_col5" class="data row4 col5">0.000000</td>
 </tr>
 <tr class="even">
-<th id="T_75755_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">5</th>
-<td id="T_75755_row5_col0" class="data row5 col0">region_South</td>
-<td id="T_75755_row5_col1" class="data row5 col1">0.0566</td>
-<td id="T_75755_row5_col2" class="data row5 col2">0.0566</td>
-<td id="T_75755_row5_col3" class="data row5 col3">0.0527</td>
-<td id="T_75755_row5_col4" class="data row5 col4">0.0527</td>
-<td id="T_75755_row5_col5" class="data row5 col5">0.000000</td>
+<th id="T_b46fa_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">5</th>
+<td id="T_b46fa_row5_col0" class="data row5 col0">region_South</td>
+<td id="T_b46fa_row5_col1" class="data row5 col1">0.0566</td>
+<td id="T_b46fa_row5_col2" class="data row5 col2">0.0566</td>
+<td id="T_b46fa_row5_col3" class="data row5 col3">0.0527</td>
+<td id="T_b46fa_row5_col4" class="data row5 col4">0.0527</td>
+<td id="T_b46fa_row5_col5" class="data row5 col5">0.000000</td>
 </tr>
 <tr class="odd">
-<th id="T_75755_level0_row6" class="row_heading level0 row6" data-quarto-table-cell-role="th">6</th>
-<td id="T_75755_row6_col0" class="data row6 col0">region_Southwest</td>
-<td id="T_75755_row6_col1" class="data row6 col1">0.0506</td>
-<td id="T_75755_row6_col2" class="data row6 col2">0.0506</td>
-<td id="T_75755_row6_col3" class="data row6 col3">0.0472</td>
-<td id="T_75755_row6_col4" class="data row6 col4">0.0472</td>
-<td id="T_75755_row6_col5" class="data row6 col5">0.000000</td>
+<th id="T_b46fa_level0_row6" class="row_heading level0 row6" data-quarto-table-cell-role="th">6</th>
+<td id="T_b46fa_row6_col0" class="data row6 col0">region_Southwest</td>
+<td id="T_b46fa_row6_col1" class="data row6 col1">0.0506</td>
+<td id="T_b46fa_row6_col2" class="data row6 col2">0.0506</td>
+<td id="T_b46fa_row6_col3" class="data row6 col3">0.0472</td>
+<td id="T_b46fa_row6_col4" class="data row6 col4">0.0472</td>
+<td id="T_b46fa_row6_col5" class="data row6 col5">0.000000</td>
 </tr>
 <tr class="even">
-<th id="T_75755_level0_row7" class="row_heading level0 row7" data-quarto-table-cell-role="th">7</th>
-<td id="T_75755_row7_col0" class="data row7 col0">iscustomer</td>
-<td id="T_75755_row7_col1" class="data row7 col1">0.2076</td>
-<td id="T_75755_row7_col2" class="data row7 col2">0.2076</td>
-<td id="T_75755_row7_col3" class="data row7 col3">0.0309</td>
-<td id="T_75755_row7_col4" class="data row7 col4">0.0309</td>
-<td id="T_75755_row7_col5" class="data row7 col5">0.000000</td>
+<th id="T_b46fa_level0_row7" class="row_heading level0 row7" data-quarto-table-cell-role="th">7</th>
+<td id="T_b46fa_row7_col0" class="data row7 col0">iscustomer</td>
+<td id="T_b46fa_row7_col1" class="data row7 col1">0.2076</td>
+<td id="T_b46fa_row7_col2" class="data row7 col2">0.2076</td>
+<td id="T_b46fa_row7_col3" class="data row7 col3">0.0309</td>
+<td id="T_b46fa_row7_col4" class="data row7 col4">0.0309</td>
+<td id="T_b46fa_row7_col5" class="data row7 col5">0.000000</td>
 </tr>
 </tbody>
 </table>
@@ -1161,40 +1161,40 @@ Table&nbsp;2: Manual MLE estimates compared with statsmodels GLM
 <section id="interpreting-the-customer-coefficient" class="level3">
 <h3 class="anchored" data-anchor-id="interpreting-the-customer-coefficient">Interpreting the Customer Coefficient</h3>
 <p>The key coefficient is <code>iscustomer</code>, which indicates whether a firm uses Blueprinty’s software. In a Poisson regression, coefficients are easier to interpret after exponentiating them. The exponentiated coefficient is a rate ratio.</p>
-<div id="136781b4" class="cell" data-execution_count="13">
+<div id="93044e57" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display" data-execution_count="13">
 <style type="text/css">
 </style>
 
-<div id="T_fd16f" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
+<div id="T_e1d83" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_fd16f-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_e1d83-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;3: Interpreting the Blueprinty customer coefficient
 </figcaption>
-<div aria-describedby="T_fd16f-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table id="T_fd16f" class="caption-top table table-sm table-striped small">
+<div aria-describedby="T_e1d83-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table id="T_e1d83" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
-<th id="T_fd16f_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Quantity</th>
-<th id="T_fd16f_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Value</th>
+<th id="T_e1d83_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Quantity</th>
+<th id="T_e1d83_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Value</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<th id="T_fd16f_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
-<td id="T_fd16f_row0_col0" class="data row0 col0">Customer coefficient</td>
-<td id="T_fd16f_row0_col1" class="data row0 col1">0.208</td>
+<th id="T_e1d83_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
+<td id="T_e1d83_row0_col0" class="data row0 col0">Customer coefficient</td>
+<td id="T_e1d83_row0_col1" class="data row0 col1">0.208</td>
 </tr>
 <tr class="even">
-<th id="T_fd16f_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
-<td id="T_fd16f_row1_col0" class="data row1 col0">Rate ratio</td>
-<td id="T_fd16f_row1_col1" class="data row1 col1">1.231</td>
+<th id="T_e1d83_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
+<td id="T_e1d83_row1_col0" class="data row1 col0">Rate ratio</td>
+<td id="T_e1d83_row1_col1" class="data row1 col1">1.231</td>
 </tr>
 <tr class="odd">
-<th id="T_fd16f_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
-<td id="T_fd16f_row2_col0" class="data row2 col0">Percent increase in expected patents</td>
-<td id="T_fd16f_row2_col1" class="data row2 col1">23.071</td>
+<th id="T_e1d83_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
+<td id="T_e1d83_row2_col0" class="data row2 col0">Percent increase in expected patents</td>
+<td id="T_e1d83_row2_col1" class="data row2 col1">23.071</td>
 </tr>
 </tbody>
 </table>
@@ -1217,7 +1217,7 @@ Table&nbsp;3: Interpreting the Blueprinty customer coefficient
 <li>Predict each firm’s expected patents if every firm were treated as a Blueprinty customer.</li>
 </ol>
 <p>All other firm characteristics, including age and region, are held fixed at their observed values. This allows the comparison to focus on the model-implied difference associated with customer status.</p>
-<div id="1bcb3924" class="cell" data-execution_count="14">
+<div id="0726ce9b" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>X0_df <span class="op">=</span> X_df.copy()</span>
@@ -1285,40 +1285,40 @@ Table&nbsp;3: Interpreting the Blueprinty customer coefficient
 </div>
 </div>
 </div>
-<div id="169259cd" class="cell" data-execution_count="15">
+<div id="5b225532" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display" data-execution_count="15">
 <style type="text/css">
 </style>
 
-<div id="T_9a041" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
+<div id="T_2791a" class="quarto-float quarto-figure quarto-figure-center anchored" data-quarto-postprocess="true">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_9a041-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="T_2791a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4: Counterfactual predicted patent awards
 </figcaption>
-<div aria-describedby="T_9a041-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table id="T_9a041" class="caption-top table table-sm table-striped small">
+<div aria-describedby="T_2791a-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table id="T_2791a" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
-<th id="T_9a041_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Counterfactual Scenario</th>
-<th id="T_9a041_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Average Predicted Patents</th>
+<th id="T_2791a_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Counterfactual Scenario</th>
+<th id="T_2791a_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Average Predicted Patents</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<th id="T_9a041_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
-<td id="T_9a041_row0_col0" class="data row0 col0">All firms treated as non-customers</td>
-<td id="T_9a041_row0_col1" class="data row0 col1">3.436</td>
+<th id="T_2791a_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">0</th>
+<td id="T_2791a_row0_col0" class="data row0 col0">All firms treated as non-customers</td>
+<td id="T_2791a_row0_col1" class="data row0 col1">3.436</td>
 </tr>
 <tr class="even">
-<th id="T_9a041_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
-<td id="T_9a041_row1_col0" class="data row1 col0">All firms treated as Blueprinty customers</td>
-<td id="T_9a041_row1_col1" class="data row1 col1">4.229</td>
+<th id="T_2791a_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">1</th>
+<td id="T_2791a_row1_col0" class="data row1 col0">All firms treated as Blueprinty customers</td>
+<td id="T_2791a_row1_col1" class="data row1 col1">4.229</td>
 </tr>
 <tr class="odd">
-<th id="T_9a041_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
-<td id="T_9a041_row2_col0" class="data row2 col0">Average difference</td>
-<td id="T_9a041_row2_col1" class="data row2 col1">0.793</td>
+<th id="T_2791a_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">2</th>
+<td id="T_2791a_row2_col0" class="data row2 col0">Average difference</td>
+<td id="T_2791a_row2_col1" class="data row2 col1">0.793</td>
 </tr>
 </tbody>
 </table>
@@ -1328,7 +1328,7 @@ Table&nbsp;4: Counterfactual predicted patent awards
 </div>
 </div>
 <p>The counterfactual calculation suggests that, after controlling for firm age and region, Blueprinty customer status is associated with roughly 0.8 additional patent awards over five years. In percentage terms, this is consistent with the rate ratio interpretation from the Poisson regression: Blueprinty customers are predicted to have about 23% higher expected patent counts than comparable non-customers.</p>
-<div id="89d01532" class="cell" data-execution_count="16">
+<div id="15ea9014" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1341,7 +1341,7 @@ Table&nbsp;4: Counterfactual predicted patent awards
 <section id="predicted-patent-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="predicted-patent-distribution">Predicted Patent Distribution</h3>
 <p>The average effect is useful, but it also hides variation across firms. Because the model is multiplicative, the absolute difference in predicted patents can be larger for firms that already have higher expected patent counts.</p>
-<div id="c6a5d34f" class="cell" data-execution_count="17">
+<div id="0d30f608" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
@@ -1410,7 +1410,7 @@ Table&nbsp;4: Counterfactual predicted patent awards
 </div>
 </div>
 </div>
-<div id="ebc922c5" class="cell" data-execution_count="18">
+<div id="c8df9eda" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
