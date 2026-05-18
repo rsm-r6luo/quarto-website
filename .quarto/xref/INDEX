@@ -22,5 +22,11 @@
   },
   "projects/project2/hw2_questions.qmd": {
     "hw2_questions.html": "95cd2e66"
+  },
+  "posts/hw3-mle/hw3_questions.qmd": {
+    "hw3_questions.html": "0ad1eeb6"
+  },
+  "posts/hw1-ab-testing/index.qmd": {
+    "index.html": "6e0268cb"
   }
 }
