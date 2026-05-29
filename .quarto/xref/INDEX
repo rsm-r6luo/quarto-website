@@ -1,35 +1,5 @@
 {
-  "about.qmd": {
-    "about.html": "3939e934"
-  },
-  "index.qmd": {
-    "index.html": "924be282"
-  },
-  "resume.qmd": {
-    "resume.html": "ccbfc046"
-  },
-  "projects/project1/index.qmd": {
-    "index.html": "dbccabd0"
-  },
-  "projects/project2/index.qmd": {
-    "index.html": "599f28d7"
-  },
-  "projects.qmd": {
-    "projects.html": "ac68982a"
-  },
-  "posts.qmd": {
-    "posts.html": "415e443a"
-  },
-  "projects/project2/hw2_questions.qmd": {
-    "hw2_questions.html": "95cd2e66"
-  },
-  "posts/hw3-mle/hw3_questions.qmd": {
-    "hw3_questions.html": "0ad1eeb6"
-  },
-  "posts/hw1-ab-testing/index.qmd": {
-    "index.html": "6e0268cb"
-  },
-  "posts/hw3-mle/index.qmd": {
-    "index.html": "9a618f88"
+  "posts/hw4/index.qmd": {
+    "index.html": "8ebeeed1"
   }
 }
