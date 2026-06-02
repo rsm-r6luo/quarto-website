@@ -1,0 +1,36 @@
+---
+format:
+  revealjs:
+    embed-resources: true
+    slide-number: false
+    title-slide: false
+    css: styles_reveal.css
+---
+
+## {.fullscreen}
+
+![](slides/slide1.png){width="100%"}
+
+## {.fullscreen}
+
+![](slides/slide2.png){width="100%"}
+
+## {.fullscreen}
+
+![](slides/slide3.png){width="100%"}
+
+## {.fullscreen}
+
+![](slides/slide4.png){width="100%"}
+
+## {.fullscreen}
+
+![](slides/slide5.png){width="100%"}
+
+## {.fullscreen}
+
+![](slides/slide6.png){width="100%"}
+
+## {.fullscreen}
+
+![](slides/slide7.png){width="100%"}
