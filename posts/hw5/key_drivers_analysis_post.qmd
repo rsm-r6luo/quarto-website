@@ -1,0 +1,300 @@
+---
+title: "Key Driver Analysis of Customer Satisfaction"
+author: "Runyu Luo"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-tools: true
+jupyter: python3
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{python}
+import math
+from itertools import combinations
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+```
+
+## Overview
+
+This post replicates the key driver analysis table from the course slides using the provided customer satisfaction survey data. The goal is to identify which brand perception attributes are most strongly associated with overall customer satisfaction.
+
+The outcome variable is `satisfaction`. I exclude `brand` and `id` because they are identifiers rather than attitudinal drivers. The potential drivers are `trust`, `build`, `differs`, `easy`, `appealing`, `rewarding`, `popular`, `service`, and `impact`.
+
+Because survey attributes often overlap with each other, I do not rely on one importance metric only. Instead, I compare several approaches: Pearson correlations, standardized regression coefficients, drop-one usefulness, Shapley values for a linear regression, Johnson's relative weights, and random forest mean decrease in Gini.
+
+## Data preparation
+
+```{python}
+df = pd.read_csv("data_for_drivers_analysis.csv")
+
+target = "satisfaction"
+drivers = [
+    "trust",
+    "build",
+    "differs",
+    "easy",
+    "appealing",
+    "rewarding",
+    "popular",
+    "service",
+    "impact",
+]
+
+analysis_df = df[[target] + drivers].dropna()
+y = analysis_df[target].to_numpy(dtype=float)
+X = analysis_df[drivers].to_numpy(dtype=float)
+
+n_obs = analysis_df.shape[0]
+n_drivers = len(drivers)
+```
+
+The analysis uses **`{python} n_obs` complete observations** and **`{python} n_drivers` candidate drivers**. The dependent variable is a 1--5 satisfaction rating, while the drivers are binary brand perception indicators.
+
+```{python}
+summary_table = pd.DataFrame({
+    "Variable": [target] + drivers,
+    "Role": ["Outcome"] + ["Driver"] * len(drivers),
+    "Mean": analysis_df[[target] + drivers].mean().round(3).values,
+    "Std. dev.": analysis_df[[target] + drivers].std().round(3).values,
+    "Min": analysis_df[[target] + drivers].min().values,
+    "Max": analysis_df[[target] + drivers].max().values,
+})
+summary_table
+```
+
+## Method comparison
+
+The methods answer slightly different versions of the same question: *which driver matters most for satisfaction?* The table below summarizes what each metric captures.
+
+```{python}
+method_table = pd.DataFrame({
+    "Method": [
+        "Pearson correlation",
+        "Standardized regression coefficient",
+        "Drop-one usefulness",
+        "Shapley value / LMG",
+        "Johnson's relative weight",
+        "Random forest mean decrease in Gini",
+    ],
+    "What it measures": [
+        "Simple bivariate relationship between each driver and satisfaction.",
+        "Partial relationship after controlling for all other drivers.",
+        "Loss in model R-squared when one driver is removed.",
+        "Average marginal contribution to R-squared across all possible model combinations.",
+        "Decomposition of explained variance after accounting for correlation among predictors.",
+        "Tree-based importance from how much each driver improves classification splits.",
+    ],
+    "Main limitation": [
+        "Can overstate importance when drivers are correlated.",
+        "Can become unstable when predictors are highly correlated.",
+        "Focuses mainly on unique contribution and may understate shared contribution.",
+        "Computationally heavier as the number of drivers increases.",
+        "Less intuitive than correlation or regression coefficients.",
+        "Model-based and not directly comparable to linear R-squared contributions.",
+    ],
+})
+method_table
+```
+
+```{python}
+def standardize(a):
+    """Standardize a vector or matrix using population standard deviation."""
+    return (a - a.mean(axis=0)) / a.std(axis=0, ddof=0)
+
+
+def r2_for_columns(cols):
+    """Fit OLS with selected columns and return in-sample R-squared."""
+    if len(cols) == 0:
+        return 0.0
+
+    X_sub = X[:, cols]
+    X_design = np.column_stack([np.ones(len(y)), X_sub])
+    beta = np.linalg.lstsq(X_design, y, rcond=None)[0]
+    y_hat = X_design @ beta
+
+    ss_res = np.sum((y - y_hat) ** 2)
+    ss_tot = np.sum((y - y.mean()) ** 2)
+    return 1 - ss_res / ss_tot
+```
+
+## Results
+
+### Linear model fit
+
+```{python}
+full_r2 = r2_for_columns(list(range(len(drivers))))
+```
+
+The full linear regression model explains **`{python} round(full_r2, 3)`** of the variation in satisfaction. This means the brand perception indicators have meaningful but not complete explanatory power for customer satisfaction.
+
+### Pearson correlations
+
+Pearson correlation is the simplest importance measure. It looks at each driver separately and measures its direct association with satisfaction.
+
+```{python}
+pearson_corr = np.array([
+    np.corrcoef(X[:, i], y)[0, 1]
+    for i in range(len(drivers))
+])
+```
+
+### Standardized regression coefficients
+
+For standardized regression coefficients, both the outcome and predictors are standardized before fitting the regression. This makes the coefficients comparable across drivers.
+
+```{python}
+X_std = standardize(X)
+y_std = standardize(y.reshape(-1, 1)).ravel()
+
+X_design_std = np.column_stack([np.ones(len(y_std)), X_std])
+standardized_betas = np.linalg.lstsq(X_design_std, y_std, rcond=None)[0][1:]
+```
+
+### Drop-one usefulness
+
+Drop-one usefulness compares the full model with a reduced model that removes one driver. A larger value means the model loses more explanatory power when that driver is removed.
+
+```{python}
+drop_one = np.array([
+    full_r2 - r2_for_columns([j for j in range(len(drivers)) if j != i])
+    for i in range(len(drivers))
+])
+```
+
+### Shapley values / LMG
+
+Shapley values allocate the full model's R-squared across drivers by averaging each driver's marginal contribution across all possible model combinations. This is useful when predictors are correlated because it distributes shared explanatory power more fairly than ordinary regression coefficients.
+
+```{python}
+r2_cache = {(): 0.0}
+
+
+def cached_r2(cols):
+    cols = tuple(sorted(cols))
+    if cols not in r2_cache:
+        r2_cache[cols] = r2_for_columns(list(cols))
+    return r2_cache[cols]
+
+
+p = len(drivers)
+shapley_values = np.zeros(p)
+
+for i in range(p):
+    other_cols = [j for j in range(p) if j != i]
+
+    for k in range(p):
+        weight = math.factorial(k) * math.factorial(p - k - 1) / math.factorial(p)
+
+        for subset in combinations(other_cols, k):
+            marginal_r2 = cached_r2(subset + (i,)) - cached_r2(subset)
+            shapley_values[i] += weight * marginal_r2
+```
+
+The Shapley values sum to **`{python} round(shapley_values.sum(), 3)`**, which matches the full model R-squared.
+
+### Johnson's relative weights
+
+Johnson's relative weights also decompose the model's explained variance across correlated predictors. This approach transforms the original predictors into orthogonal components and then allocates the explained variance back to the original variables.
+
+```{python}
+R_xx = np.corrcoef(X_std, rowvar=False)
+r_xy = np.corrcoef(X_std, y_std, rowvar=False)[:-1, -1]
+
+eigenvalues, eigenvectors = np.linalg.eigh(R_xx)
+eigenvalues = np.maximum(eigenvalues, 1e-12)
+
+R_sqrt = eigenvectors @ np.diag(np.sqrt(eigenvalues)) @ eigenvectors.T
+R_inv_sqrt = eigenvectors @ np.diag(1 / np.sqrt(eigenvalues)) @ eigenvectors.T
+
+beta_star = R_inv_sqrt @ r_xy
+johnson_weights = (R_sqrt ** 2) @ (beta_star ** 2)
+```
+
+The Johnson weights sum to **`{python} round(johnson_weights.sum(), 3)`**, again matching the full model R-squared.
+
+### Random forest mean decrease in Gini
+
+Since `satisfaction` is an ordinal rating, I treat it as a classification outcome for the random forest. The feature importance values below are impurity-based importances, corresponding to mean decrease in Gini for a classification random forest.
+
+```{python}
+rf = RandomForestClassifier(
+    n_estimators=1000,
+    random_state=123,
+    max_features="sqrt",
+)
+
+rf.fit(X, y.astype(int))
+rf_gini = rf.feature_importances_
+```
+
+## Final key driver table
+
+```{python}
+results = pd.DataFrame({
+    "Driver": drivers,
+    "Pearson correlation": pearson_corr,
+    "Standardized beta": standardized_betas,
+    "Drop-one usefulness": drop_one,
+    "Shapley value": shapley_values,
+    "Johnson relative weight": johnson_weights,
+    "RF mean decrease Gini": rf_gini,
+})
+
+results["Shapley share of R²"] = results["Shapley value"] / full_r2
+results["Johnson share of R²"] = results["Johnson relative weight"] / full_r2
+
+results = results.sort_values("Shapley value", ascending=False).reset_index(drop=True)
+
+results_display = results.copy()
+for col in results_display.columns:
+    if col != "Driver":
+        results_display[col] = results_display[col].round(4)
+
+results_display
+```
+
+To make the result easier to read, I also rank the drivers under each method. A lower rank means higher importance.
+
+```{python}
+rank_table = pd.DataFrame({"Driver": drivers})
+
+for col in [
+    "Pearson correlation",
+    "Standardized beta",
+    "Drop-one usefulness",
+    "Shapley value",
+    "Johnson relative weight",
+    "RF mean decrease Gini",
+]:
+    values = results.set_index("Driver").loc[drivers, col]
+    if col == "Standardized beta":
+        values = values.abs()
+    rank_table[col.replace("Standardized beta", "Std. beta") + " rank"] = (
+        values.rank(ascending=False, method="min").astype(int).values
+    )
+
+rank_table["Average rank"] = rank_table.drop(columns="Driver").mean(axis=1).round(2)
+rank_table = rank_table.sort_values("Average rank").reset_index(drop=True)
+rank_table
+```
+
+## Interpretation
+
+Across the linear-model-based methods, **`impact`**, **`trust`**, and **`service`** are the strongest drivers of satisfaction. These three variables rank at the top under Shapley values and Johnson's relative weights, which are especially useful because they divide shared explanatory power across correlated predictors.
+
+The Pearson correlations are relatively close for several variables, which shows why correlation alone can be misleading in key driver analysis. A variable can look important in a bivariate relationship, but part of that relationship may overlap with other brand perception attributes. The drop-one and standardized regression results help separate unique contribution from shared contribution.
+
+The random forest importances are more evenly distributed than the linear-model-based measures. This suggests that the tree-based model is capturing a somewhat different type of importance, possibly because it can use non-linear splits and interactions. However, the main managerial conclusion is still consistent: improving perceived **impact**, **trust**, and **service** would likely be the most useful focus for improving overall customer satisfaction.
+
+## Conclusion
+
+The key driver analysis suggests that customer satisfaction is most strongly associated with whether customers perceive the brand as impactful, trustworthy, and service-oriented. I would prioritize these drivers because they are consistently important across multiple methods, not just under a single metric.

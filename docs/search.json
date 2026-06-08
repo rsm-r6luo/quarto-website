@@ -4,7 +4,7 @@
     "href": "posts.html",
     "title": "Post",
     "section": "",
-    "text": "MaxDiff Analysis of MSBA Class Preferences\n\n\nCounts, MLE, and Bayesian estimation of the MNL model\n\n\n\n\n\n\n\n\nMay 28, 2026\n\n\nRunyu Luo\n\n\n\n\n\n\n\n\n\n\n\n\nPoisson Regression and Maximum Likelihood Estimation\n\n\nA Case Study of Blueprinty’s Software and Patent Awards\n\n\n\n\n\n\n\n\nMay 28, 2026\n\n\nRunyu Luo\n\n\n\n\n\nNo matching items"
+    "text": "Key Driver Analysis of Customer Satisfaction\n\n\n\n\n\n\n\n\n\n\n\nJun 8, 2026\n\n\nRunyu Luo\n\n\n\n\n\n\n\n\n\n\n\n\nMaxDiff Analysis of MSBA Class Preferences\n\n\nCounts, MLE, and Bayesian estimation of the MNL model\n\n\n\n\n\n\n\n\nJun 8, 2026\n\n\nRunyu Luo\n\n\n\n\n\n\n\n\n\n\n\n\nPoisson Regression and Maximum Likelihood Estimation\n\n\nA Case Study of Blueprinty’s Software and Patent Awards\n\n\n\n\n\n\n\n\nJun 8, 2026\n\n\nRunyu Luo\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html",
@@ -243,5 +243,124 @@
     "title": "MaxDiff Analysis of MSBA Class Preferences",
     "section": "From MaxDiff Data to MNL Choices",
     "text": "From MaxDiff Data to MNL Choices\nTo estimate an MNL model, I first reshape the MaxDiff data into one row per respondent-task. Each task contains the four items shown to the respondent, the item selected as best, and the item selected as worst.\nIn a MaxDiff task, the respondent makes two related choices. First, they choose the best item from the four shown items. Then, after the best item is removed, they choose the worst item from the remaining three items. The MNL model treats these choices as probability statements based on item utilities.\nFor the best choice, the probability of choosing item \\(j\\) from the shown set is:\n\\[\nP(\\text{best}=j) = \\frac{\\exp(\\beta_j)}{\\sum_{k \\in \\text{shown}} \\exp(\\beta_k)}\n\\]\nFor the worst choice, the utilities are flipped because lower-utility items are more likely to be selected as worst:\n\\[\nP(\\text{worst}=j) = \\frac{\\exp(-\\beta_j)}{\\sum_{k \\in \\text{remaining}} \\exp(-\\beta_k)}\n\\]\nBecause adding a constant to all utilities does not change the MNL probabilities, the model is not fully identified unless one coefficient is fixed. I use item 1 as the reference class and set \\(\\beta_1 = 0\\). The model then estimates the remaining nine coefficients.\n\n\nCode\ntask_data &lt;- maxdiff |&gt;\n  filter(item_id %in% 1:10) |&gt;\n  group_by(`Record ID`, Task) |&gt;\n  summarise(\n    shown_items = list(item_id),\n    best_item = item_id[Response == 1][1],\n    worst_item = item_id[Response == -1][1],\n    n_rows = n(),\n    n_best = sum(Response == 1),\n    n_worst = sum(Response == -1),\n    .groups = \"drop\"\n  ) |&gt;\n  filter(\n    n_rows == 4,\n    n_best == 1,\n    n_worst == 1,\n    !is.na(best_item),\n    !is.na(worst_item)\n  )\n\ntask_display &lt;- task_data |&gt;\n  select(`Record ID`, Task, shown_items, best_item, worst_item) |&gt;\n  mutate(\n    shown_items = map_chr(shown_items, ~ paste(.x, collapse = \", \"))\n  ) |&gt;\n  head(10)\n\nkable(task_display)\n\n\n\n\n\nRecord ID\nTask\nshown_items\nbest_item\nworst_item\n\n\n\n\n69fb85fbd66b452e6decf4f7\n1\n5, 7, 4, 1\n7\n1\n\n\n69fb85fbd66b452e6decf4f7\n2\n8, 3, 10, 9\n10\n8\n\n\n69fb85fbd66b452e6decf4f7\n3\n3, 5, 2, 6\n2\n6\n\n\n69fb85fbd66b452e6decf4f7\n4\n6, 4, 8, 7\n7\n6\n\n\n69fb85fbd66b452e6decf4f7\n5\n2, 9, 7, 1\n2\n1\n\n\n69fb85fbd66b452e6decf4f7\n6\n10, 2, 3, 4\n2\n3\n\n\n69fb85fbd66b452e6decf4f7\n7\n9, 8, 5, 2\n2\n8\n\n\n69fb85fbd66b452e6decf4f7\n8\n1, 10, 6, 8\n10\n6\n\n\n69fb87e6d66b452e6decf799\n1\n1, 9, 7, 4\n9\n4\n\n\n69fb87e6d66b452e6decf799\n2\n6, 8, 2, 3\n3\n6\n\n\n\n\n\nThe reshaped dataset has one row for each MaxDiff task. This structure is useful because the likelihood function can iterate over tasks, recover the shown items, and compute the probability of the observed best and worst choices.\n\n\nCode\ntask_data_summary &lt;- tibble(\n  Metric = c(\n    \"Number of valid MaxDiff respondent-task observations\",\n    \"Minimum best item number\",\n    \"Maximum best item number\",\n    \"Minimum worst item number\",\n    \"Maximum worst item number\"\n  ),\n  Value = c(\n    nrow(task_data),\n    min(task_data$best_item),\n    max(task_data$best_item),\n    min(task_data$worst_item),\n    max(task_data$worst_item)\n  )\n)\n\nkable(task_data_summary)\n\n\n\n\n\nMetric\nValue\n\n\n\n\nNumber of valid MaxDiff respondent-task observations\n680\n\n\nMinimum best item number\n1\n\n\nMaximum best item number\n10\n\n\nMinimum worst item number\n1\n\n\nMaximum worst item number\n10"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html",
+    "href": "posts/hw5/key_drivers_analysis_post.html",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "",
+    "text": "This post replicates the key driver analysis table from the course slides using the provided customer satisfaction survey data. The goal is to identify which brand perception attributes are most strongly associated with overall customer satisfaction.\nThe outcome variable is satisfaction. I exclude brand and id because they are identifiers rather than attitudinal drivers. The potential drivers are trust, build, differs, easy, appealing, rewarding, popular, service, and impact.\nBecause survey attributes often overlap with each other, I do not rely on one importance metric only. Instead, I compare several approaches: Pearson correlations, standardized regression coefficients, drop-one usefulness, Shapley values for a linear regression, Johnson’s relative weights, and random forest mean decrease in Gini."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#goal",
+    "href": "posts/hw5/key_drivers_analysis_post.html#goal",
+    "title": "Key Drivers Analysis",
+    "section": "",
+    "text": "This post replicates the key driver analysis table from the course slides using the provided customer satisfaction survey data. The dependent variable is satisfaction, and the potential drivers are the brand perception attributes in the survey. I omit polychoric correlations and focus on Pearson correlations, standardized regression coefficients, drop-one usefulness, Shapley values for a linear regression, Johnson’s relative weights, and random forest mean decrease in Gini.\nThe main idea of key driver analysis is to estimate which attributes are most strongly related to overall satisfaction. Because survey attributes are often correlated with each other, I compare several methods rather than relying on only one importance measure."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#load-packages-and-data",
+    "href": "posts/hw5/key_drivers_analysis_post.html#load-packages-and-data",
+    "title": "Key Drivers Analysis",
+    "section": "Load packages and data",
+    "text": "Load packages and data\n\nimport math\nfrom itertools import combinations\n\nimport numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndf = pd.read_csv(\"data_for_drivers_analysis.csv\")\n\n# Outcome variable\ntarget = \"satisfaction\"\n\n# Exclude brand and respondent id because they are identifiers/grouping fields,\n# not attitudinal drivers of satisfaction.\ndrivers = [\n    \"trust\",\n    \"build\",\n    \"differs\",\n    \"easy\",\n    \"appealing\",\n    \"rewarding\",\n    \"popular\",\n    \"service\",\n    \"impact\",\n]\n\nanalysis_df = df[[target] + drivers].dropna()\nanalysis_df.head()\n\n\n\n\n\n\n\n\nsatisfaction\ntrust\nbuild\ndiffers\neasy\nappealing\nrewarding\npopular\nservice\nimpact\n\n\n\n\n0\n3\n1\n0\n1\n1\n1\n0\n0\n1\n0\n\n\n1\n5\n0\n0\n0\n0\n0\n0\n0\n0\n0\n\n\n2\n3\n1\n0\n0\n1\n1\n1\n0\n1\n1\n\n\n3\n1\n0\n0\n0\n0\n1\n0\n1\n1\n1\n\n\n4\n4\n1\n1\n1\n1\n1\n1\n1\n1\n1\n\n\n\n\n\n\n\n\nanalysis_df.shape\n\n(2553, 10)\n\n\nThe final analysis uses all complete observations for the outcome and driver variables."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#helper-functions",
+    "href": "posts/hw5/key_drivers_analysis_post.html#helper-functions",
+    "title": "Key Drivers Analysis",
+    "section": "Helper functions",
+    "text": "Helper functions\nThe following functions calculate model fit and the different relative importance measures. For the linear regression methods, I use \\(R^2\\) as the fit metric.\n\ny = analysis_df[target].to_numpy(dtype=float)\nX = analysis_df[drivers].to_numpy(dtype=float)\n\n\ndef standardize(a):\n    \"\"\"Standardize a vector or matrix using population standard deviation.\"\"\"\n    return (a - a.mean(axis=0)) / a.std(axis=0, ddof=0)\n\n\ndef r2_for_columns(cols):\n    \"\"\"Fit OLS with selected columns and return in-sample R-squared.\"\"\"\n    if len(cols) == 0:\n        return 0.0\n\n    X_sub = X[:, cols]\n    X_design = np.column_stack([np.ones(len(y)), X_sub])\n    beta = np.linalg.lstsq(X_design, y, rcond=None)[0]\n    y_hat = X_design @ beta\n\n    ss_res = np.sum((y - y_hat) ** 2)\n    ss_tot = np.sum((y - y.mean()) ** 2)\n    return 1 - ss_res / ss_tot"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#pearson-correlations",
+    "href": "posts/hw5/key_drivers_analysis_post.html#pearson-correlations",
+    "title": "Key Drivers Analysis",
+    "section": "Pearson correlations",
+    "text": "Pearson correlations\nPearson correlation measures the bivariate relationship between each driver and overall satisfaction. It does not control for overlap among drivers.\n\npearson_corr = np.array([\n    np.corrcoef(X[:, i], y)[0, 1]\n    for i in range(len(drivers))\n])"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#standardized-regression-coefficients",
+    "href": "posts/hw5/key_drivers_analysis_post.html#standardized-regression-coefficients",
+    "title": "Key Drivers Analysis",
+    "section": "Standardized regression coefficients",
+    "text": "Standardized regression coefficients\nFor standardized coefficients, both the outcome and predictors are standardized before fitting the regression. These coefficients show each variable’s partial relationship with satisfaction after controlling for the other drivers.\n\nX_std = standardize(X)\ny_std = standardize(y.reshape(-1, 1)).ravel()\n\nX_design_std = np.column_stack([np.ones(len(y_std)), X_std])\nstandardized_betas = np.linalg.lstsq(X_design_std, y_std, rcond=None)[0][1:]"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#drop-one-usefulness",
+    "href": "posts/hw5/key_drivers_analysis_post.html#drop-one-usefulness",
+    "title": "Key Drivers Analysis",
+    "section": "Drop-one usefulness",
+    "text": "Drop-one usefulness\nDrop-one usefulness is the full model’s \\(R^2\\) minus the \\(R^2\\) of a model that removes one driver. A larger value means the model loses more explanatory power when that driver is removed.\n\nfull_r2 = r2_for_columns(list(range(len(drivers))))\n\ndrop_one = np.array([\n    full_r2 - r2_for_columns([j for j in range(len(drivers)) if j != i])\n    for i in range(len(drivers))\n])\n\nfull_r2\n\nnp.float64(0.10901225161688899)"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#shapley-values-lmg",
+    "href": "posts/hw5/key_drivers_analysis_post.html#shapley-values-lmg",
+    "title": "Key Drivers Analysis",
+    "section": "Shapley values / LMG",
+    "text": "Shapley values / LMG\nShapley values average each driver’s marginal contribution to \\(R^2\\) across all possible model orderings. This is also closely related to LMG / averaging over orderings.\n\nr2_cache = {(): 0.0}\n\n\ndef cached_r2(cols):\n    cols = tuple(sorted(cols))\n    if cols not in r2_cache:\n        r2_cache[cols] = r2_for_columns(list(cols))\n    return r2_cache[cols]\n\n\np = len(drivers)\nshapley_values = np.zeros(p)\n\nfor i in range(p):\n    other_cols = [j for j in range(p) if j != i]\n\n    for k in range(p):\n        weight = math.factorial(k) * math.factorial(p - k - 1) / math.factorial(p)\n\n        for subset in combinations(other_cols, k):\n            marginal_r2 = cached_r2(subset + (i,)) - cached_r2(subset)\n            shapley_values[i] += weight * marginal_r2\n\nshapley_values.sum(), full_r2\n\n(np.float64(0.10901225161688899), np.float64(0.10901225161688899))\n\n\nThe Shapley values sum to the full model \\(R^2\\)."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#johnsons-relative-weights",
+    "href": "posts/hw5/key_drivers_analysis_post.html#johnsons-relative-weights",
+    "title": "Key Drivers Analysis",
+    "section": "Johnson’s relative weights",
+    "text": "Johnson’s relative weights\nJohnson’s relative weights decompose the model’s explained variance by transforming the correlated predictors into orthogonal components and then allocating the variance back to the original predictors.\n\nR_xx = np.corrcoef(X_std, rowvar=False)\nr_xy = np.corrcoef(X_std, y_std, rowvar=False)[:-1, -1]\n\n# Eigen decomposition of the predictor correlation matrix\neigenvalues, eigenvectors = np.linalg.eigh(R_xx)\neigenvalues = np.maximum(eigenvalues, 1e-12)\n\nR_sqrt = eigenvectors @ np.diag(np.sqrt(eigenvalues)) @ eigenvectors.T\nR_inv_sqrt = eigenvectors @ np.diag(1 / np.sqrt(eigenvalues)) @ eigenvectors.T\n\nbeta_star = R_inv_sqrt @ r_xy\njohnson_weights = (R_sqrt ** 2) @ (beta_star ** 2)\n\njohnson_weights.sum(), full_r2\n\n(np.float64(0.10901225161688986), np.float64(0.10901225161688899))\n\n\nJohnson’s relative weights also sum to the full model \\(R^2\\)."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#random-forest-mean-decrease-in-gini",
+    "href": "posts/hw5/key_drivers_analysis_post.html#random-forest-mean-decrease-in-gini",
+    "title": "Key Drivers Analysis",
+    "section": "Random forest mean decrease in Gini",
+    "text": "Random forest mean decrease in Gini\nBecause satisfaction is an ordinal rating, I treat it as a classification outcome for the random forest and report the impurity-based feature importance. In a classification random forest, this corresponds to mean decrease in Gini.\n\nrf = RandomForestClassifier(\n    n_estimators=1000,\n    random_state=123,\n    max_features=\"sqrt\"\n)\n\nrf.fit(X, y.astype(int))\nrf_gini = rf.feature_importances_"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#final-key-driver-table",
+    "href": "posts/hw5/key_drivers_analysis_post.html#final-key-driver-table",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "Final key driver table",
+    "text": "Final key driver table\n\n\n\n\n\n\n\n\n\nDriver\nPearson correlation\nStandardized beta\nDrop-one usefulness\nShapley value\nJohnson relative weight\nRF mean decrease Gini\nShapley share of R²\nJohnson share of R²\n\n\n\n\n0\nimpact\n0.2545\n0.1284\n0.0112\n0.0236\n0.0239\n0.0906\n0.2163\n0.2197\n\n\n1\ntrust\n0.2557\n0.1158\n0.0082\n0.0216\n0.0216\n0.0961\n0.1982\n0.1984\n\n\n2\nservice\n0.2511\n0.0884\n0.0047\n0.0184\n0.0181\n0.0967\n0.1688\n0.1664\n\n\n3\neasy\n0.2130\n0.0220\n0.0003\n0.0093\n0.0090\n0.1215\n0.0852\n0.0824\n\n\n4\nappealing\n0.2080\n0.0338\n0.0007\n0.0092\n0.0091\n0.1116\n0.0840\n0.0835\n\n\n5\ndiffers\n0.1848\n0.0278\n0.0006\n0.0073\n0.0076\n0.1088\n0.0669\n0.0697\n\n\n6\nbuild\n0.1919\n0.0200\n0.0003\n0.0072\n0.0072\n0.1228\n0.0660\n0.0662\n\n\n7\nrewarding\n0.1946\n0.0051\n0.0000\n0.0068\n0.0065\n0.1229\n0.0627\n0.0600\n\n\n8\npopular\n0.1714\n0.0166\n0.0002\n0.0056\n0.0059\n0.1291\n0.0518\n0.0539\n\n\n\n\n\n\n\nTo make the result easier to read, I also rank the drivers under each method. A lower rank means higher importance.\n\n\n\n\n\n\n\n\n\nDriver\nPearson correlation rank\nStd. beta rank\nDrop-one usefulness rank\nShapley value rank\nJohnson relative weight rank\nRF mean decrease Gini rank\nAverage rank\n\n\n\n\n0\nimpact\n2\n1\n1\n1\n1\n9\n2.50\n\n\n1\ntrust\n1\n2\n2\n2\n2\n8\n2.83\n\n\n2\nservice\n3\n3\n3\n3\n3\n7\n3.67\n\n\n3\nappealing\n5\n4\n4\n5\n4\n5\n4.50\n\n\n4\neasy\n4\n6\n6\n4\n5\n4\n4.83\n\n\n5\ndiffers\n8\n5\n5\n6\n6\n6\n6.00\n\n\n6\nbuild\n7\n7\n7\n7\n7\n3\n6.33\n\n\n7\nrewarding\n6\n9\n9\n8\n8\n2\n7.00\n\n\n8\npopular\n9\n8\n8\n9\n9\n1\n7.33"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#interpretation",
+    "href": "posts/hw5/key_drivers_analysis_post.html#interpretation",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "Interpretation",
+    "text": "Interpretation\nAcross the linear-model-based methods, impact, trust, and service are the strongest drivers of satisfaction. These three variables rank at the top under Shapley values and Johnson’s relative weights, which are especially useful because they divide shared explanatory power across correlated predictors.\nThe Pearson correlations are relatively close for several variables, which shows why correlation alone can be misleading in key driver analysis. A variable can look important in a bivariate relationship, but part of that relationship may overlap with other brand perception attributes. The drop-one and standardized regression results help separate unique contribution from shared contribution.\nThe random forest importances are more evenly distributed than the linear-model-based measures. This suggests that the tree-based model is capturing a somewhat different type of importance, possibly because it can use non-linear splits and interactions. However, the main managerial conclusion is still consistent: improving perceived impact, trust, and service would likely be the most useful focus for improving overall customer satisfaction."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#overview",
+    "href": "posts/hw5/key_drivers_analysis_post.html#overview",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "",
+    "text": "This post replicates the key driver analysis table from the course slides using the provided customer satisfaction survey data. The goal is to identify which brand perception attributes are most strongly associated with overall customer satisfaction.\nThe outcome variable is satisfaction. I exclude brand and id because they are identifiers rather than attitudinal drivers. The potential drivers are trust, build, differs, easy, appealing, rewarding, popular, service, and impact.\nBecause survey attributes often overlap with each other, I do not rely on one importance metric only. Instead, I compare several approaches: Pearson correlations, standardized regression coefficients, drop-one usefulness, Shapley values for a linear regression, Johnson’s relative weights, and random forest mean decrease in Gini."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#data-preparation",
+    "href": "posts/hw5/key_drivers_analysis_post.html#data-preparation",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "Data preparation",
+    "text": "Data preparation\nThe analysis uses 2553 complete observations and 9 candidate drivers. The dependent variable is a 1–5 satisfaction rating, while the drivers are binary brand perception indicators.\n\n\n\n\n\n\n\n\n\nVariable\nRole\nMean\nStd. dev.\nMin\nMax\n\n\n\n\n0\nsatisfaction\nOutcome\n3.387\n1.172\n1\n5\n\n\n1\ntrust\nDriver\n0.550\n0.498\n0\n1\n\n\n2\nbuild\nDriver\n0.462\n0.499\n0\n1\n\n\n3\ndiffers\nDriver\n0.335\n0.472\n0\n1\n\n\n4\neasy\nDriver\n0.536\n0.499\n0\n1\n\n\n5\nappealing\nDriver\n0.451\n0.498\n0\n1\n\n\n6\nrewarding\nDriver\n0.451\n0.498\n0\n1\n\n\n7\npopular\nDriver\n0.536\n0.499\n0\n1\n\n\n8\nservice\nDriver\n0.467\n0.499\n0\n1\n\n\n9\nimpact\nDriver\n0.331\n0.471\n0\n1"
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#method-comparison",
+    "href": "posts/hw5/key_drivers_analysis_post.html#method-comparison",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "Method comparison",
+    "text": "Method comparison\nThe methods answer slightly different versions of the same question: which driver matters most for satisfaction? The table below summarizes what each metric captures.\n\n\n\n\n\n\n\n\n\nMethod\nWhat it measures\nMain limitation\n\n\n\n\n0\nPearson correlation\nSimple bivariate relationship between each dri...\nCan overstate importance when drivers are corr...\n\n\n1\nStandardized regression coefficient\nPartial relationship after controlling for all...\nCan become unstable when predictors are highly...\n\n\n2\nDrop-one usefulness\nLoss in model R-squared when one driver is rem...\nFocuses mainly on unique contribution and may ...\n\n\n3\nShapley value / LMG\nAverage marginal contribution to R-squared acr...\nComputationally heavier as the number of drive...\n\n\n4\nJohnson's relative weight\nDecomposition of explained variance after acco...\nLess intuitive than correlation or regression ...\n\n\n5\nRandom forest mean decrease in Gini\nTree-based importance from how much each drive...\nModel-based and not directly comparable to lin..."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#results",
+    "href": "posts/hw5/key_drivers_analysis_post.html#results",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "Results",
+    "text": "Results\n\nLinear model fit\nThe full linear regression model explains np.float64(0.109) of the variation in satisfaction. This means the brand perception indicators have meaningful but not complete explanatory power for customer satisfaction.\n\n\nPearson correlations\nPearson correlation is the simplest importance measure. It looks at each driver separately and measures its direct association with satisfaction.\n\n\nStandardized regression coefficients\nFor standardized regression coefficients, both the outcome and predictors are standardized before fitting the regression. This makes the coefficients comparable across drivers.\n\n\nDrop-one usefulness\nDrop-one usefulness compares the full model with a reduced model that removes one driver. A larger value means the model loses more explanatory power when that driver is removed.\n\n\nShapley values / LMG\nShapley values allocate the full model’s R-squared across drivers by averaging each driver’s marginal contribution across all possible model combinations. This is useful when predictors are correlated because it distributes shared explanatory power more fairly than ordinary regression coefficients.\nThe Shapley values sum to np.float64(0.109), which matches the full model R-squared.\n\n\nJohnson’s relative weights\nJohnson’s relative weights also decompose the model’s explained variance across correlated predictors. This approach transforms the original predictors into orthogonal components and then allocates the explained variance back to the original variables.\nThe Johnson weights sum to np.float64(0.109), again matching the full model R-squared.\n\n\nRandom forest mean decrease in Gini\nSince satisfaction is an ordinal rating, I treat it as a classification outcome for the random forest. The feature importance values below are impurity-based importances, corresponding to mean decrease in Gini for a classification random forest."
+  },
+  {
+    "objectID": "posts/hw5/key_drivers_analysis_post.html#conclusion",
+    "href": "posts/hw5/key_drivers_analysis_post.html#conclusion",
+    "title": "Key Driver Analysis of Customer Satisfaction",
+    "section": "Conclusion",
+    "text": "Conclusion\nThe key driver analysis suggests that customer satisfaction is most strongly associated with whether customers perceive the brand as impactful, trustworthy, and service-oriented. I would prioritize these drivers because they are consistently important across multiple methods, not just under a single metric."
   }
 ]
